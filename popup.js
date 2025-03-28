@@ -94,6 +94,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     startDate = new Date();
                     startDate.setDate(today.getDate() - 14);
                     break;
+                case "Last 28 Days":
+                    startDate = new Date();
+                    startDate.setDate(today.getDate() - 28);
+                    break;
                 case "Last 30 Days":
                     startDate = new Date();
                     startDate.setDate(today.getDate() - 30);
