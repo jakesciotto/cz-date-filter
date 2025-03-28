@@ -5,7 +5,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const applyButton = document.getElementById("applyFilter");
     const savedFiltersList = document.getElementById("savedFilters");
 
-
     // Load and display saved filters
     function loadSavedFilters() {
         chrome.storage.sync.get("savedFilters", function (data) {
@@ -15,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
             filters.forEach((filter, index) => {
                 let li = document.createElement("li");
                 li.classList.add("filter-item");
-                li.innerHTML = `<span>${filter.range} (${filter.dates})</span> 
+                li.innerHTML = `<span class="filter-text" data-index="${index}">${filter.range} (${filter.dates})</span> 
                                 <button class="delete-btn" data-index="${index}">X</button>`;
                 savedFiltersList.appendChild(li);
             });
@@ -26,6 +25,21 @@ document.addEventListener("DOMContentLoaded", function () {
                     let index = parseInt(this.getAttribute("data-index"));
                     filters.splice(index, 1);
                     chrome.storage.sync.set({ savedFilters: filters }, loadSavedFilters);
+                });
+            });
+
+            // Add event listeners to saved filter items
+            document.querySelectorAll(".filter-text").forEach(item => {
+                item.addEventListener("click", function () {
+                    let index = parseInt(this.getAttribute("data-index"));
+                    let selectedFilter = filters[index];
+
+                    // Populate the date filter and custom date input
+                    dateFilter.value = selectedFilter.range;
+                    customDateInput.value = selectedFilter.dates;
+
+                    // Enable/disable custom date input based on the filter
+                    customDateInput.disabled = selectedFilter.range !== "Custom";
                 });
             });
         });
