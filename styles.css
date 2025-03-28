@@ -1,5 +1,107 @@
-body { font-family: Arial, sans-serif; padding: 10px; width: 500px; }
-label, select, input, button { display: block; margin-bottom: 50px; width: 100%; }
-#savedFilters { margin-top: 100px; }
-.filter-item { display: flex; justify-content: space-between; align-items: center; }
-.delete-btn { background: yellow; color: white; border: none; cursor: pointer; padding: 5px; }
+/* Reset default styling */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  /* Define variables for a consistent modern look */
+  :root {
+    --primary-color: #4a90e2;
+    --primary-color-hover: #357ABD;
+    --accent-color: #f5a623;
+    --background-color: #ffffff;
+    --text-color: #333;
+    --border-radius: 5px;
+    --padding: 10px;
+    --font-family: 'Roboto', sans-serif;
+  }
+  
+  /* Base styles for the popup body */
+  body {
+    font-family: var(--font-family);
+    padding: var(--padding);
+    width: 300px;
+    background-color: var(--background-color);
+    color: var(--text-color);
+  }
+  
+  /* Header styling */
+  h3, h4 {
+    margin-bottom: 15px;
+  }
+  
+  /* Label styling */
+  label {
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+  }
+  
+  /* Common styling for inputs, selects, and buttons */
+  select,
+  input,
+  button {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    margin-bottom: 15px;
+    background-color: #fdfdfd;
+  }
+  
+  /* Focus styles for form elements */
+  select:focus,
+  input:focus,
+  button:focus {
+    outline: none;
+    border-color: var(--primary-color);
+  }
+  
+  /* Button styling */
+  button {
+    cursor: pointer;
+    background-color: var(--primary-color);
+    color: #fff;
+    border: none;
+    transition: background-color 0.2s ease-in-out;
+  }
+  
+  button:hover {
+    background-color: var(--primary-color-hover);
+  }
+  
+  /* Delete button styling */
+  .delete-btn {
+    background-color: #e74c3c;
+    color: #fff;
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+  }
+  
+  .delete-btn:hover {
+    background-color: #c0392b;
+  }
+  
+  /* Saved filters list styling */
+  #savedFilters {
+    margin-top: 20px;
+    list-style-type: none;
+    padding-left: 0;
+  }
+  
+  .filter-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .filter-item:last-child {
+    border-bottom: none;
+  }
