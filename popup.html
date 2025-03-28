@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; padding: 10px; width: 250px; }
+        label, select, input, button { display: block; margin-bottom: 10px; width: 100%; }
+        #savedFilters { margin-top: 50px; }
+        .filter-item { display: flex; justify-content: space-between; align-items: center; }
+        .delete-btn { background: yellow; color: white; border: none; cursor: pointer; padding: 5px; }
+        </style>
+    <title>CloudZero Date Filter</title>
+</head>
+<body>
+    <h3>CloudZero Date Filter</h3>
+    
+    <label for="dateFilter">Select Date Range:</label>
+    <select id="dateFilter">
+        <option value="Last 7 Days">Last 7 Days</option>
+        <option value="Last 14 Days">Last 14 Days</option>
+        <option value="Last 30 Days">Last 30 Days</option>
+        <option value="Last 90 Days">Last 90 Days</option>
+        <option value="Custom">Custom</option>
+    </select>
+
+    <label for="customDate">Custom Date Range:</label>
+    <input type="text" id="customDate" placeholder="e.g. 2025-01-28 to 2025-02-10" disabled>
+
+    <button id="saveFilter">Save Filter</button>
+    <button id="applyFilter">Apply to CloudZero</button>
+
+    <h4>Saved Filters</h4>
+    <ul id="savedFilters"></ul>
+
+    <script src="popup.js"></script>
+</body>
+</html>
