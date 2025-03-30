@@ -128,14 +128,20 @@
 }
 
 .delete-btn {
-    background-color: #ff4d4d;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 2px 5px;
-    cursor: pointer;
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 2px 4px; /* Reduced padding */
+  font-size: 0.7rem; /* Smaller font size */
+  cursor: pointer;
+  width: 20px; /* Optional: Set a fixed width */
+  height: 20px; /* Optional: Set a fixed height */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .delete-btn:hover {
-    background-color: #ff1a1a;
+  background-color: #ff1a1a;
 }
