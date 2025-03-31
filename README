@@ -3,34 +3,34 @@
 Follow these steps to install this project as a Chrome extension:
 
 ## Prerequisites
-- Google Chrome browser installed on your system.
+- Ensure you have the Google Chrome browser installed.
 
-## Steps to Install
+## Installation Steps
 
 1. **Download or Clone the Repository**
     - Download the project as a ZIP file or clone it using Git:
-      ```
+      ```bash
       git clone <repository-url>
       ```
-    - Extract the ZIP file if downloaded.
+    - If downloaded as a ZIP file, extract its contents.
 
 2. **Open Chrome Extensions Page**
-    - Open Google Chrome.
+    - Launch Google Chrome.
     - Navigate to `chrome://extensions/` in the address bar.
 
 3. **Enable Developer Mode**
-    - On the top-right corner of the Extensions page, toggle the "Developer mode" switch to ON.
+    - Toggle the "Developer mode" switch in the top-right corner of the Extensions page.
 
 4. **Load the Extension**
-    - Click on the "Load unpacked" button.
-    - In the file dialog, select the folder containing the extension's source code (the folder where `manifest.json` is located).
+    - Click the "Load unpacked" button.
+    - Select the folder containing the extension's source code (ensure it includes the `manifest.json` file).
 
 5. **Verify Installation**
-    - The extension should now appear in the list of installed extensions.
-    - If applicable, pin the extension to the toolbar for easy access.
+    - Confirm the extension appears in the list of installed extensions.
+    - Optionally, pin the extension to the toolbar for quick access.
 
-## Notes
-- Ensure that the `manifest.json` file is correctly configured for your extension.
-- If you make changes to the source code, click the "Reload" button on the Extensions page to apply updates.
+## Additional Notes
+- Verify that the `manifest.json` file is properly configured for your extension.
+- After making changes to the source code, click the "Reload" button on the Extensions page to apply updates.
 
 Enjoy using your Chrome extension!
