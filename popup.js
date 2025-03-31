@@ -70,6 +70,38 @@ document.addEventListener("DOMContentLoaded", function () {
         alert("Filter saved successfully!");
     });
 
+
+    // Handle the date filter in the case where we need 4 full weekends and 4 full weeks in a 28 day period
+    function findValid28DayWindow() {
+        const today = new Date();
+        let end = new Date(today);
+        end.setHours(0, 0, 0, 0);
+    
+        // We'll go back one day at a time until we find a valid window
+        while (true) {
+            let start = new Date(end);
+            start.setDate(end.getDate() - 27); // Inclusive 28-day window
+    
+            let weekdays = 0;
+            let weekends = 0;
+            for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+                const day = d.getDay(); // 0 = Sunday, 6 = Saturday
+                if (day === 0 || day === 6) {
+                    weekends++;
+                } else {
+                    weekdays++;
+                }
+            }
+    
+            if (Math.floor(weekdays / 5) >= 4 && Math.floor(weekends / 2) >= 4) {
+                return { startDate: start, endDate: end };
+            }
+    
+            // Step back one day and try again
+            end.setDate(end.getDate() - 1);
+        }
+    }
+
     // Apply the filter by modifying the CloudZero URL
     applyButton.addEventListener("click", function () {
         chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -89,8 +121,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     startDate.setDate(today.getDate() - 14);
                     break;
                 case "Last 28 Days":
-                    startDate = new Date();
-                    startDate.setDate(today.getDate() - 28);
+                    ({ startDate, endDate } = findValid28DayWindow());
+                    break;
                     break;
                 case "Last 30 Days":
                     startDate = new Date();
