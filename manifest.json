@@ -7,9 +7,9 @@
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
-      "16": "cloudzero-icon-color-rgb-16.png",
-      "48": "cloudzero-icon-color-rgb-48.png",
-      "128": "cloudzero-icon-color-rgb-128.png"
+      "16": "icon/cloudzero-icon-color-rgb-16.png",
+      "48": "icon/cloudzero-icon-color-rgb-48.png",
+      "128": "icon/cloudzero-icon-color-rgb-128.png"
     }
   },
     "web_accessible_resources": [

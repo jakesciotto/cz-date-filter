@@ -1,0 +1,36 @@
+# Chrome Extension Installation Guide
+
+Follow these steps to install this project as a Chrome extension:
+
+## Prerequisites
+- Google Chrome browser installed on your system.
+
+## Steps to Install
+
+1. **Download or Clone the Repository**
+    - Download the project as a ZIP file or clone it using Git:
+      ```
+      git clone <repository-url>
+      ```
+    - Extract the ZIP file if downloaded.
+
+2. **Open Chrome Extensions Page**
+    - Open Google Chrome.
+    - Navigate to `chrome://extensions/` in the address bar.
+
+3. **Enable Developer Mode**
+    - On the top-right corner of the Extensions page, toggle the "Developer mode" switch to ON.
+
+4. **Load the Extension**
+    - Click on the "Load unpacked" button.
+    - In the file dialog, select the folder containing the extension's source code (the folder where `manifest.json` is located).
+
+5. **Verify Installation**
+    - The extension should now appear in the list of installed extensions.
+    - If applicable, pin the extension to the toolbar for easy access.
+
+## Notes
+- Ensure that the `manifest.json` file is correctly configured for your extension.
+- If you make changes to the source code, click the "Reload" button on the Extensions page to apply updates.
+
+Enjoy using your Chrome extension!
