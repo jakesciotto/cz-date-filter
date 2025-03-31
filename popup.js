@@ -37,9 +37,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     // Populate the date filter and custom date input
                     dateFilter.value = selectedFilter.range;
                     customDateInput.value = selectedFilter.dates;
-
-                    // Enable/disable custom date input based on the filter
-                    customDateInput.disabled = selectedFilter.range !== "Custom";
                 });
             });
         });
@@ -47,24 +44,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
     loadSavedFilters(); // Load saved filters on popup open
 
-    /// Enable custom date input if "Custom" is selected
-    dateFilter.addEventListener("change", function () {
-        customDateInput.disabled = dateFilter.value !== "Custom";
-    });
-
     // Save selected filter
     saveButton.addEventListener("click", function () {
         const selectedDate = dateFilter.value;
         const customDate = customDateInput.value;
 
-        if (selectedDate === "Custom" && !customDate.includes(" to ")) {
+        // Only validate custom date format if a custom date is entered
+        if (customDate && !customDate.includes(" to ")) {
             alert("Please enter a valid custom date range in 'YYYY-MM-DD to YYYY-MM-DD' format.");
             return;
         }
 
         let filterObj = {
-            range: selectedDate,
-            dates: selectedDate === "Custom" ? customDate : "Auto-generated",
+            // If there's a custom date entered, use "Custom" as the range regardless of dropdown selection
+            range: customDate ? "Custom" : selectedDate,
+            dates: customDate || "Auto-generated",
         };
 
         chrome.storage.sync.get("savedFilters", function (data) {
