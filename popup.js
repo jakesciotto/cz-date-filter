@@ -124,7 +124,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 case "Last 28 Days":
                     ({ startDate, endDate } = findValid28DayWindow());
                     break;
-                    break;
                 case "Last 30 Days":
                     startDate = new Date();
                     startDate.setDate(today.getDate() - 30);
