@@ -75,6 +75,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function findValid28DayWindow() {
         const today = new Date();
         let end = new Date(today);
+        end.setDate(today.getDate() - 2);
         end.setHours(0, 0, 0, 0);
     
         // We'll go back one day at a time until we find a valid window
