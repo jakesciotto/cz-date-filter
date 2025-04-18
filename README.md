@@ -1,4 +1,4 @@
-# Chrome Extension Installation Guide
+# Chrome Extension Installation Guide -- CZ Date Filter
 
 Follow these steps to install this project as a Chrome extension:
 
@@ -32,5 +32,3 @@ Follow these steps to install this project as a Chrome extension:
 ## Additional Notes
 - Verify that the `manifest.json` file is properly configured for your extension.
 - After making changes to the source code, click the "Reload" button on the Extensions page to apply updates.
-
-Enjoy using your Chrome extension!
