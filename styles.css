@@ -57,6 +57,11 @@ button {
   transition: background-color 0.2s ease-in-out;
 }
 
+button:disabled {
+  cursor: not-allowed;
+  background-color: #cccccc;
+}
+
 #savedFilters {
   list-style-type: none;
   padding: 0px;

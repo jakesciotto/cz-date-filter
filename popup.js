@@ -5,6 +5,18 @@ document.addEventListener("DOMContentLoaded", function () {
     const applyButton = document.getElementById("applyFilter");
     const savedFiltersList = document.getElementById("savedFilters");
 
+    // Add this function after the constants
+    function updateSaveButtonState() {
+        const isCustomSelected = dateFilter.value === "Custom";
+        saveButton.disabled = !isCustomSelected;
+        saveButton.style.opacity = isCustomSelected ? "1" : "0.5";
+    }
+
+    updateSaveButtonState(); // Initial state
+    
+    // Add this event listener
+    dateFilter.addEventListener("change", updateSaveButtonState);
+
     // Load and display saved filters
     function loadSavedFilters() {
         chrome.storage.sync.get("savedFilters", function (data) {
