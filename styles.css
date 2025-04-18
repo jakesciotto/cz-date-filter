@@ -48,6 +48,19 @@ select:focus, input:focus, button:focus {
   border-color: var(--primary-color);
 }
 
+/* Add styles for disabled inputs */
+input:disabled {
+  background-color: #f5f5f5;
+  color: #999;
+  cursor: not-allowed;
+  border-color: #ddd;
+}
+
+/* Optional: Style the labels of disabled inputs */
+label.disabled {
+  color: #999;
+}
+
 /* Button styling */
 button {
   cursor: pointer;

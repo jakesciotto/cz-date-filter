@@ -9,8 +9,24 @@ document.addEventListener("DOMContentLoaded", function () {
     // Add this function after the constants
     function updateSaveButtonState() {
         const isCustomSelected = dateFilter.value === "Custom";
+        
+        // Update save button state
         saveButton.disabled = !isCustomSelected;
         saveButton.style.opacity = isCustomSelected ? "1" : "0.5";
+        
+        // Update custom inputs state
+        customDateInput.disabled = !isCustomSelected;
+        customNameInput.disabled = !isCustomSelected;
+        
+        // Update labels styling
+        const labels = document.querySelectorAll('label[for="customDate"], label[for="customName"]');
+        labels.forEach(label => {
+            if (isCustomSelected) {
+                label.classList.remove('disabled');
+            } else {
+                label.classList.add('disabled');
+            }
+        });
     }
 
     updateSaveButtonState(); // Initial state
