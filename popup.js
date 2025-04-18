@@ -4,19 +4,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const saveButton = document.getElementById("saveFilter");
     const applyButton = document.getElementById("applyFilter");
     const savedFiltersList = document.getElementById("savedFilters");
-    const makeDefaultCheckbox = document.getElementById("makeDefault");
 
-    // Load and display saved filters and default filter
+    // Load and display saved filters
     function loadSavedFilters() {
-        chrome.storage.sync.get(["savedFilters", "defaultFilter"], function (data) {
+        chrome.storage.sync.get("savedFilters", function (data) {
             savedFiltersList.innerHTML = ""; // Clear existing list
             let filters = data.savedFilters || [];
-            
-            // Apply default filter if it exists
-            if (data.defaultFilter) {
-                dateFilter.value = data.defaultFilter.range;
-                customDateInput.value = data.defaultFilter.dates || "";
-            }
             
             filters.forEach((filter, index) => {
                 let li = document.createElement("li");
@@ -71,21 +64,12 @@ document.addEventListener("DOMContentLoaded", function () {
         chrome.storage.sync.get("savedFilters", function (data) {
             let filters = data.savedFilters || [];
             filters.push(filterObj);
-            
-            // If checkbox is checked, save as default filter
-            if (makeDefaultCheckbox.checked) {
-                chrome.storage.sync.set({ 
-                    savedFilters: filters,
-                    defaultFilter: filterObj 
-                }, loadSavedFilters);
-            } else {
-                chrome.storage.sync.set({ savedFilters: filters }, loadSavedFilters);
-            }
+            chrome.storage.sync.set({ savedFilters: filters }, loadSavedFilters);
         });
 
         alert("Filter saved successfully!");
-        makeDefaultCheckbox.checked = false; // Reset checkbox after saving
     });
+
 
     // Handle the date filter in the case where we need 4 full weekends and 4 full weeks in a 28 day period
     function findValid28DayWindow() {
