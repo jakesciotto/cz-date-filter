@@ -105,3 +105,9 @@ button {
 .delete-btn:hover {
   background-color: #ff1a1a; /* Darker red on hover */
 }
+
+.default-filter-option {
+  margin-top: 5px;
+  font-size: 0.9em;
+  color: #666;
+}
