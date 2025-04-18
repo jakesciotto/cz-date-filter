@@ -22,8 +22,13 @@
         <option value="Custom">Custom</option>
     </select>
 
-    <label for="customDate">Custom Date Range:</label>
-    <input id="customDate" type="text" placeholder="e.g. 2025-01-28 to 2025-02-10" />
+    <div class="input-group">
+        <label for="customDate">Custom Date Range:</label>
+        <input id="customDate" type="text" placeholder="e.g. 2025-01-28 to 2025-02-10" />
+        
+        <label for="customName">Custom Name:</label>
+        <input id="customName" type="text" placeholder="Enter a name for your filter" />
+    </div>
 
     <button id="saveFilter">Save Filter</button>
     <button id="applyFilter">Apply to CloudZero</button>

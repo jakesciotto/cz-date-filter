@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const saveButton = document.getElementById("saveFilter");
     const applyButton = document.getElementById("applyFilter");
     const savedFiltersList = document.getElementById("savedFilters");
+    const customNameInput = document.getElementById("customName");
 
     // Add this function after the constants
     function updateSaveButtonState() {
@@ -26,7 +27,9 @@ document.addEventListener("DOMContentLoaded", function () {
             filters.forEach((filter, index) => {
                 let li = document.createElement("li");
                 li.classList.add("filter-item");
-                li.innerHTML = `<span class="filter-text" data-index="${index}">${filter.range} (${filter.dates})</span> 
+                // Use the custom name if it exists, otherwise fall back to the default format
+                const displayText = filter.customName || `${filter.range} (${filter.dates})`;
+                li.innerHTML = `<span class="filter-text" data-index="${index}">${displayText}</span> 
                                 <button class="delete-btn" data-index="${index}">X</button>`;
                 savedFiltersList.appendChild(li);
             });
@@ -46,9 +49,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     let index = parseInt(this.getAttribute("data-index"));
                     let selectedFilter = filters[index];
 
-                    // Populate the date filter and custom date input
+                    // Populate the date filter, custom date input, and custom name input
                     dateFilter.value = selectedFilter.range;
                     customDateInput.value = selectedFilter.dates;
+                    customNameInput.value = selectedFilter.customName || "";
                 });
             });
         });
@@ -60,6 +64,7 @@ document.addEventListener("DOMContentLoaded", function () {
     saveButton.addEventListener("click", function () {
         const selectedDate = dateFilter.value;
         const customDate = customDateInput.value;
+        const customName = customNameInput.value.trim();
 
         // Only validate custom date format if a custom date is entered
         if (customDate && !customDate.includes(" to ")) {
@@ -71,17 +76,21 @@ document.addEventListener("DOMContentLoaded", function () {
             // If there's a custom date entered, use "Custom" as the range regardless of dropdown selection
             range: customDate ? "Custom" : selectedDate,
             dates: customDate || "Auto-generated",
+            customName: customName || null  // Store the custom name if provided
         };
 
         chrome.storage.sync.get("savedFilters", function (data) {
             let filters = data.savedFilters || [];
             filters.push(filterObj);
-            chrome.storage.sync.set({ savedFilters: filters }, loadSavedFilters);
+            chrome.storage.sync.set({ savedFilters: filters }, function() {
+                loadSavedFilters();
+                // Clear the custom name input after saving
+                customNameInput.value = "";
+            });
         });
 
         alert("Filter saved successfully!");
     });
-
 
     // Handle the date filter in the case where we need 4 full weekends and 4 full weeks in a 28 day period
     function findValid28DayWindow() {

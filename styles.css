@@ -42,6 +42,12 @@ select, input, button {
   margin-bottom: 15px;
   background-color: #fdfdfd;
 }
+
+/* Add this with your other input styles */
+#customName {
+    margin-top: 5px;
+}
+
 /* Focus styles for form elements */
 select:focus, input:focus, button:focus {
   outline: none;
@@ -87,6 +93,7 @@ button:disabled {
   align-items: center; /* Vertically center the text */
   line-height: 1.2; /* Adjust line height for better alignment */
   margin: 0; /* Remove any default margins */
+  cursor: pointer;
 }
 
 .delete-btn {
