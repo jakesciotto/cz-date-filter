@@ -29,7 +29,7 @@ h3, h4 {
 }
 /* Label styling */
 label {
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   margin-bottom: 5px;
 }
 /* Common styling for inputs, selects, and buttons */
@@ -38,7 +38,7 @@ select, input, button {
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: var(--border-radius);
-  font-size: 1rem;
+  font-size: .8rem;
   margin-bottom: 15px;
   background-color: #fdfdfd;
 }
@@ -84,6 +84,7 @@ button:disabled {
 .filter-text {
   flex-grow: 1; /* Allow the text to take up available space */
   display: flex;
+  font-size: .8rem;
   justify-content: center; /* Center the text horizontally */
   align-items: center; /* Vertically center the text */
   line-height: 1.2; /* Adjust line height for better alignment */
