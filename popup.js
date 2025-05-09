@@ -5,6 +5,22 @@ document.addEventListener("DOMContentLoaded", function () {
     const applyButton = document.getElementById("applyFilter");
     const savedFiltersList = document.getElementById("savedFilters");
     const customNameInput = document.getElementById("customName");
+    const useDefaultOffset = document.getElementById("useDefaultOffset");
+
+    // Load saved offset preference when popup opens
+    chrome.storage.sync.get("useOffset", function(data) {
+        useDefaultOffset.checked = data.useOffset || false;
+        // Initialize URL after loading preference
+        initializeURL(true);
+    });
+
+    // Save offset preference when checkbox changes
+    useDefaultOffset.addEventListener("change", function() {
+        chrome.storage.sync.set({ useOffset: this.checked }, function() {
+            // Reinitialize URL when offset preference changes
+            initializeURL(true);
+        });
+    });
 
     // Add this function after the constants
     function updateSaveButtonState() {
@@ -26,6 +42,80 @@ document.addEventListener("DOMContentLoaded", function () {
             } else {
                 label.classList.add('disabled');
             }
+        });
+    }
+
+    // Add this function to handle date offsets
+    function applyDateOffset(url, offsetDays) {
+        let params = url.searchParams;
+        if (params.has('startDate') && params.has('endDate')) {
+            let startDate = new Date(params.get('startDate').replace(/%3A/g, ':'));
+            let endDate = new Date(params.get('endDate').replace(/%3A/g, ':'));
+            
+            startDate.setDate(startDate.getDate() - offsetDays);
+            endDate.setDate(endDate.getDate() - offsetDays);
+
+            // Format dates back to CloudZero's format
+            const formatToCloudZeroISO = (date, endOfDay = false) => {
+                let isoString = date.toISOString().split("T")[0];
+                let timePart = endOfDay ? "23:59:59" : "00:00:00";
+                return `${isoString}T${timePart}Z`.replace(/:/g, "%3A");
+            };
+
+            params.set('startDate', formatToCloudZeroISO(startDate));
+            params.set('endDate', formatToCloudZeroISO(endDate, true));
+        }
+        return url;
+    }
+
+    // Modify initializeURL to accept a parameter for updating the tab
+    function initializeURL(shouldUpdateTab) {
+        chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+            let baseURL = tabs[0].url.includes('cloudzero.com') ? 
+            new URL(tabs[0].url) : 
+            new URL('https://app.cloudzero.com/explorer');
+
+            // Set default parameters for new URLs or update existing ones
+            const today = new Date();
+            const startDate = new Date();
+            startDate.setDate(today.getDate() - 7); // Default to last 7 days
+    
+            const formatToCloudZeroISO = (date, endOfDay = false) => {
+                let isoString = date.toISOString().split("T")[0];
+                let timePart = endOfDay ? "23:59:59" : "00:00:00";
+                return `${isoString}T${timePart}Z`.replace(/:/g, "%3A");
+            };
+    
+            // Always ensure these parameters are set
+            baseURL.searchParams.set("activeCostType", "real_cost");
+            baseURL.searchParams.set("granularity", "daily");
+            baseURL.searchParams.set("dateRange", "Custom");
+            baseURL.searchParams.set("showRightFlyout", "filters");
+            
+            // Set initial dates if they're not already present
+            if (!baseURL.searchParams.has('startDate')) {
+                baseURL.searchParams.set("startDate", formatToCloudZeroISO(startDate));
+            }
+            if (!baseURL.searchParams.has('endDate')) {
+                baseURL.searchParams.set("endDate", formatToCloudZeroISO(today, true));
+            }
+    
+            // Apply offset if enabled
+            chrome.storage.sync.get("useOffset", function(data) {
+                if (data.useOffset) {
+                    baseURL = applyDateOffset(baseURL, 2);
+                    
+                    // Only update the tab if explicitly requested
+                    if (shouldUpdateTab && tabs[0].url.includes('cloudzero.com')) {
+                        chrome.tabs.update(tabs[0].id, { 
+                            url: baseURL.toString().replace(/%25/g, "%") 
+                        });
+                    }
+                }
+                
+                // Store the URL for later use
+                window.cloudZeroURL = baseURL;
+            });
         });
     }
 
@@ -140,11 +230,10 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Apply the filter by modifying the CloudZero URL
+    // Modify the existing applyButton click handler
     applyButton.addEventListener("click", function () {
         chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-            let url = new URL(tabs[0].url);
-
+            let url = window.cloudZeroURL;
             let today = new Date();
             let startDate, endDate;
 
@@ -152,22 +241,26 @@ document.addEventListener("DOMContentLoaded", function () {
             switch (dateFilter.value) {
                 case "Last 7 Days":
                     startDate = new Date();
-                    startDate.setDate(today.getDate() - 7);
+                    startDate.setDate(today.getDate() - (7));
                     break;
                 case "Last 14 Days":
                     startDate = new Date();
-                    startDate.setDate(today.getDate() - 14);
+                    startDate.setDate(today.getDate() - (14));
                     break;
                 case "Last 28 Days":
                     ({ startDate, endDate } = findValid28DayWindow());
+                    if (offsetDays) {
+                        startDate.setDate(startDate.getDate());
+                        endDate.setDate(endDate.getDate());
+                    }
                     break;
                 case "Last 30 Days":
                     startDate = new Date();
-                    startDate.setDate(today.getDate() - 30);
+                    startDate.setDate(today.getDate() - (30 + offsetDays));
                     break;
                 case "Last 90 Days":
                     startDate = new Date();
-                    startDate.setDate(today.getDate() - 90);
+                    startDate.setDate(today.getDate() - (90 + offsetDays));
                     break;
                 case "Custom":
                     if (!customDateInput.value.includes(" to ")) {
@@ -177,12 +270,16 @@ document.addEventListener("DOMContentLoaded", function () {
                     let [customStart, customEnd] = customDateInput.value.split(" to ");
                     startDate = new Date(customStart);
                     endDate = new Date(customEnd);
+                    if (offsetDays) {
+                        startDate.setDate(startDate.getDate());
+                        endDate.setDate(endDate.getDate());
+                    }
                     break;
                 default:
                     return;
             }
 
-            // Default end date (for predefined ranges, set it to yesterday)
+            // Default end date (for predefined ranges)
             if (!endDate) {
                 endDate = new Date();
                 endDate.setDate(today.getDate() - 1);
@@ -203,7 +300,7 @@ document.addEventListener("DOMContentLoaded", function () {
             formattedEndDate = formattedEndDate.replace(/:/g, "%3A");
 
             // **Fix partitions encoding (replace "+" with "%20")**
-            let partitionsValue = url.searchParams.get("partitions");
+            partitionsValue = url.searchParams.get("partitions");
             if (partitionsValue) {
                 partitionsValue = partitionsValue.replace(/\+/g, "%20");
                 url.searchParams.set("partitions", partitionsValue);
@@ -212,12 +309,11 @@ document.addEventListener("DOMContentLoaded", function () {
             // **Ensure granularity=daily is placed right after real_cost**
             url.searchParams.set("activeCostType", "real_cost");
             url.searchParams.set("granularity", "daily");
-
-            // Modify the URL components correctly
             url.searchParams.set("dateRange", "Custom");
+            url.searchParams.set("showRightFlyout", "filters");
             url.searchParams.set("startDate", formattedStartDate);
             url.searchParams.set("endDate", formattedEndDate);
-            url.searchParams.set("showRightFlyout", "filters");
+           
 
             // **Remove all instances of "25" after percent signs**
             let finalURL = url.toString().replace(/%25/g, "%"); // Fix over-encoding issue

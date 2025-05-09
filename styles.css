@@ -126,3 +126,16 @@ button:disabled {
 .delete-btn:hover {
   background-color: #ff1a1a; /* Darker red on hover */
 }
+
+.offset-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 5px 0 15px;
+    font-size: 0.8rem;
+}
+
+.offset-option input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+}
