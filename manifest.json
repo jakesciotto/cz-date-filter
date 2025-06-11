@@ -7,20 +7,15 @@
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
-      "16": "icon/cloudzero-icon-color-rgb-16.png",
-      "48": "icon/cloudzero-icon-color-rgb-48.png",
-      "128": "icon/cloudzero-icon-color-rgb-128.png"
+      "16": "assets/icons/cloudzero-icon-color-rgb-16.png",
+      "48": "assets/icons/cloudzero-icon-color-rgb-48.png",
+      "128": "assets/icons/cloudzero-icon-color-rgb-128.png"
     }
   },
-    "web_accessible_resources": [
-      {
-      "resources": [
-            "style/styles.css",
-            "script/popup.js"
-          ],
-          "matches": [
-            "https://app.cloudzero.com/*"
-          ]
-      }
-    ]
+  "content_scripts": [
+    {
+      "matches": ["https://app.cloudzero.com/*"],
+      "js": ["content-script.js"]
+    }
+  ]
   }
