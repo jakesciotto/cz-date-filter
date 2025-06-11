@@ -5,17 +5,20 @@
   "description": "Save and apply custom date filters to CloudZero Explorer",
   "permissions": ["storage", "tabs"],
   "action": {
-    "default_popup": "popup.html",
+    "default_popup": "src/popup/popup.html",
     "default_icon": {
       "16": "assets/icons/cloudzero-icon-color-rgb-16.png",
       "48": "assets/icons/cloudzero-icon-color-rgb-48.png",
       "128": "assets/icons/cloudzero-icon-color-rgb-128.png"
     }
   },
+  "background": {
+    "service_worker": "src/background/service-worker.js"
+  },
   "content_scripts": [
     {
       "matches": ["https://app.cloudzero.com/*"],
-      "js": ["content-script.js"]
+      "js": ["src/content/content-script.js"]
     }
   ]
   }

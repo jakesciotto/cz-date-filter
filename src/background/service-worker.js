@@ -3,7 +3,17 @@
  * Handles background tasks and messaging
  */
 
-import { CLOUDZERO_CONFIG } from '../shared/constants.js';
+// Constants (duplicated from shared/constants.js since imports aren't supported)
+const CLOUDZERO_CONFIG = {
+    BASE_URL: 'https://app.cloudzero.com',
+    URL_PATTERN: 'https://app.cloudzero.com/*',
+    REQUIRED_PARAMS: {
+        activeCostType: 'real_cost',
+        granularity: 'daily',
+        showRightFlyout: 'filters'
+    },
+    DATA_INGESTION_LAG_DAYS: 2
+};
 
 // Handle extension installation
 chrome.runtime.onInstalled.addListener(() => {
@@ -11,7 +21,7 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 // Handle messages from popup and content scripts
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     switch (request.action) {
         case 'urlChanged':
             handleUrlChange(request.url);

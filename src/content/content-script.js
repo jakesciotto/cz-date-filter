@@ -3,10 +3,20 @@
  * Runs on CloudZero pages to enhance integration
  */
 
-import { CLOUDZERO_CONFIG } from '../shared/constants.js';
+// Constants (duplicated from shared/constants.js since imports aren't supported)
+const CLOUDZERO_CONFIG = {
+    BASE_URL: 'https://app.cloudzero.com',
+    URL_PATTERN: 'https://app.cloudzero.com/*',
+    REQUIRED_PARAMS: {
+        activeCostType: 'real_cost',
+        granularity: 'daily',
+        showRightFlyout: 'filters'
+    },
+    DATA_INGESTION_LAG_DAYS: 2
+};
 
 // Listen for messages from the popup
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     if (request.action === 'applyDateFilter') {
         applyDateFilter(request.startDate, request.endDate);
         sendResponse({ success: true });
