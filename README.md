@@ -36,6 +36,20 @@ Follow these steps to install this project as a Chrome extension:
 ## Changelog
 
 ### Version 1.1 (Upcoming)
+**UI Enhancements & Code Refactoring**
+- **UI Enhancements**:
+  - Added icons to buttons and labels (📅 💾 🚀 📋)
+  - Improved spacing and breathing room between sections
+  - Better visual hierarchy with clearer section separation
+  - Enhanced input group styling with subtle backgrounds
+  - Hover effects on saved filter items
+  - Larger popup width for better readability
+- **Code Architecture**:
+  - Refactored codebase into modular structure under `/src` directory
+  - Separated concerns into dedicated modules (popup, content, background, shared utilities)
+  - Improved maintainability and code organization
+
+### Version 1.0.1
 **Enhanced Date Input Flexibility**
 - Added support for multiple date formats:
   - `YYYY-MM-DD` or `YYYY/MM/DD` (e.g., `2025-01-15` or `2025/01/15`)
@@ -55,8 +69,6 @@ Follow these steps to install this project as a Chrome extension:
   - Relative date expressions (e.g., "last 45 days") also end 2 days prior to current date
 - Enhanced date validation with comprehensive error messages
 - Updated UI placeholder text to show new supported formats
-
-### Version 1.0.1
 - Updated permissions and manifest configuration
 - Updated README documentation
 - UI improvements for filter text positioning and disabled state styling
