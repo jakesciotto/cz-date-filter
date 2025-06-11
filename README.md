@@ -32,3 +32,31 @@ Follow these steps to install this project as a Chrome extension:
 ## Additional Notes
 - Verify that the `manifest.json` file is properly configured for your extension.
 - After making changes to the source code, click the "Reload" button on the Extensions page to apply updates.
+
+## Changelog
+
+### Version 1.1 (Upcoming)
+**Enhanced Date Input Flexibility**
+- Added support for multiple date formats:
+  - `YYYY-MM-DD` or `YYYY/MM/DD` (e.g., `2025-01-15` or `2025/01/15`)
+  - `MM-DD-YYYY` or `MM/DD/YYYY` (e.g., `01-15-2025` or `01/15/2025`)
+  - `DD-MM-YYYY` or `DD/MM/YYYY` (European format)
+- Added support for multiple date range separators:
+  - `to`: `2025-01-15 to 2025-02-28`
+  - `-`: `01/15/2025 - 02/28/2025`
+  - `through`: `2025-01-15 through 2025-02-28`
+  - `thru`: `01-15-2025 thru 02-28-2025`
+  - `--`: `2025-01-15 -- 2025-02-28`
+  - `—`: `01/15/2025 — 02/28/2025`
+- Added support for relative date expressions:
+  - `last X days` (e.g., `last 45 days`, `last 1 day`)
+- **Data Lag Alignment**: Updated all date calculations to account for CloudZero's 2-day data ingestion lag
+  - All predefined ranges (Last 7/14/28/30/90 Days) now end 2 days prior to current date
+  - Relative date expressions (e.g., "last 45 days") also end 2 days prior to current date
+- Enhanced date validation with comprehensive error messages
+- Updated UI placeholder text to show new supported formats
+
+### Version 1.0.1
+- Updated permissions and manifest configuration
+- Updated README documentation
+- UI improvements for filter text positioning and disabled state styling
