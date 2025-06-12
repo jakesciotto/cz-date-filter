@@ -79,9 +79,9 @@ body {
   line-height: 1.5;
   color: var(--gray-800);
   background-color: white;
-  width: 600px;
-  min-width: 600px;
-  min-height: 500px;
+  width: 300px;
+  min-width: 300px;
+  min-height: 400px;
   overflow-x: hidden;
 }
 
@@ -89,7 +89,7 @@ body {
 .header {
   background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%);
   color: white;
-  padding: var(--space-5) var(--space-6);
+  padding: var(--space-4) var(--space-5);
   position: relative;
   overflow: hidden;
 }
@@ -125,10 +125,10 @@ body {
 
 /* Main Content */
 .main-content {
-  padding: var(--space-5);
+  padding: var(--space-4);
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-3);
 }
 
 /* Form Styles */
@@ -167,7 +167,7 @@ body {
 .form-select,
 .form-input {
   width: 100%;
-  padding: var(--space-3) var(--space-4);
+  padding: var(--space-2) var(--space-3);
   border: var(--border-width) solid var(--gray-300);
   border-radius: var(--radius-md);
   font-size: var(--font-size-sm);
@@ -200,12 +200,12 @@ body {
 .custom-fields {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-2);
   background-color: var(--gray-50);
   border: var(--border-width) solid var(--gray-200);
   border-radius: var(--radius-lg);
-  padding: var(--space-4);
-  margin-top: var(--space-3);
+  padding: var(--space-3);
+  margin-top: var(--space-2);
   opacity: 0;
   max-height: 0;
   overflow: hidden;
@@ -285,11 +285,11 @@ body {
 .advanced-fields {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-2);
   background-color: var(--gray-50);
   border: var(--border-width) solid var(--gray-200);
   border-radius: var(--radius-lg);
-  padding: var(--space-4);
+  padding: var(--space-3);
   opacity: 0;
   max-height: 0;
   overflow: hidden;
@@ -311,16 +311,17 @@ body {
 /* Buttons */
 .actions {
   display: flex;
-  gap: var(--space-3);
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
 .btn {
-  flex: 1;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  padding: var(--space-3) var(--space-4);
+  padding: var(--space-2) var(--space-3);
   border: var(--border-width) solid transparent;
   border-radius: var(--radius-md);
   font-size: var(--font-size-sm);
@@ -381,12 +382,12 @@ body {
   font-size: var(--font-size-base);
   font-weight: 600;
   color: var(--gray-800);
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--space-2);
   letter-spacing: -0.025em;
 }
 
 .saved-filters-container {
-  min-height: 120px;
+  min-height: 60px;
 }
 
 .saved-filters-list {
@@ -406,24 +407,29 @@ body {
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: var(--space-8);
+  padding: var(--space-4);
   color: var(--gray-500);
-  gap: var(--space-2);
+  gap: var(--space-1);
 }
 
 .empty-state svg {
-  opacity: 0.5;
-  margin-bottom: var(--space-2);
+  width: 32px;
+  height: 32px;
+  opacity: 0.4;
+  margin-bottom: var(--space-1);
 }
 
 .empty-state p {
   font-weight: 500;
   color: var(--gray-600);
+  font-size: var(--font-size-sm);
+  margin: 0;
 }
 
 .empty-state span {
   font-size: var(--font-size-xs);
   color: var(--gray-400);
+  margin: 0;
 }
 
 /* Filter Item */
@@ -431,7 +437,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--space-4);
+  padding: var(--space-3);
   background-color: white;
   border: var(--border-width) solid var(--gray-200);
   border-radius: var(--radius-md);
