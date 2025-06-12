@@ -18,10 +18,22 @@ export function getSavedFilters() {
  * Saves a filter to Chrome storage
  * @param {Object} filter - Filter object to save
  * @returns {Promise<Array>} Updated array of saved filters
+ * @throws {Error} If filter with same name already exists
  */
 export function saveFilter(filter) {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
         getSavedFilters().then((filters) => {
+            // Check for duplicate filter names
+            const existingFilter = filters.find(f => 
+                f.customName && filter.customName && 
+                f.customName.toLowerCase() === filter.customName.toLowerCase()
+            );
+            
+            if (existingFilter) {
+                reject(new Error(`A filter named "${filter.customName}" already exists. Please choose a different name.`));
+                return;
+            }
+            
             filters.push(filter);
             chrome.storage.sync.set({ savedFilters: filters }, () => {
                 resolve(filters);

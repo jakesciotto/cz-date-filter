@@ -396,7 +396,13 @@ document.addEventListener("DOMContentLoaded", function () {
             
             showSuccessMessage('Filter saved successfully!');
         } catch (error) {
-            showErrorMessage(`Error saving filter: ${error.message}`);
+            if (error.message.includes('already exists')) {
+                showErrorMessage(error.message);
+                customNameInput.focus();
+                customNameInput.select(); // Select the text so user can easily replace it
+            } else {
+                showErrorMessage(`Error saving filter: ${error.message}`);
+            }
         } finally {
             saveButton.classList.remove('loading');
             saveButton.disabled = false;
