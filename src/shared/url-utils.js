@@ -40,6 +40,8 @@ export function buildCloudZeroUrl(baseUrl, startDate, endDate, advancedParams = 
     url.searchParams.set("showRightFlyout", "filters");
     
     // Set optional advanced parameters
+    console.log('Advanced params:', advancedParams);
+    
     if (advancedParams.groupBy && advancedParams.groupBy.trim()) {
         // CloudZero uses 'costcontext:' prefix with display names for partitions
         const groupByValue = advancedParams.groupBy.trim();
@@ -68,6 +70,7 @@ export function buildCloudZeroUrl(baseUrl, startDate, endDate, advancedParams = 
         const displayName = cloudZeroDisplayNames[groupByValue] || groupByValue;
         const partitionValue = `costcontext:${displayName}`;
         console.log(`Setting partitions parameter: ${partitionValue}`);
+        // CloudZero uses both 'partitions' (for UI) and 'partition_by' (for API)
         url.searchParams.set("partitions", partitionValue);
     } else {
         // Fix existing partitions encoding if no groupBy is specified
@@ -79,13 +82,48 @@ export function buildCloudZeroUrl(baseUrl, startDate, endDate, advancedParams = 
     }
     
     if (advancedParams.filters && advancedParams.filters.trim()) {
-        // Handle filters - this might need CloudZero-specific encoding
-        url.searchParams.set("filters", advancedParams.filters.trim());
+        // Parse CloudZero filters - format: "services:AmazonCloudWatch,region:us-east-1,us-east-2"
+        const filtersString = advancedParams.filters.trim();
+        console.log(`Parsing filters: ${filtersString}`);
+        
+        // Split by commas and process each filter
+        const filterPairs = filtersString.split(',').map(f => f.trim());
+        const filterGroups = {};
+        
+        filterPairs.forEach(pair => {
+            if (pair.includes(':')) {
+                const [key, value] = pair.split(':', 2);
+                const trimmedKey = key.trim();
+                const trimmedValue = value.trim();
+                
+                if (!filterGroups[trimmedKey]) {
+                    filterGroups[trimmedKey] = [];
+                }
+                filterGroups[trimmedKey].push(trimmedValue);
+            }
+        });
+        
+        // CloudZero expects filters as JSON, but also supports individual URL parameters
+        // Try both approaches: JSON filters parameter AND individual parameters
+        if (Object.keys(filterGroups).length > 0) {
+            // Set as JSON filters parameter (for API compatibility)
+            const filtersJSON = JSON.stringify(filterGroups);
+            console.log(`Setting JSON filters parameter: ${filtersJSON}`);
+            url.searchParams.set("filters", filtersJSON);
+            
+            // Also set individual parameters (for UI compatibility)
+            Object.entries(filterGroups).forEach(([key, values]) => {
+                const paramValue = values.join(',');
+                console.log(`Setting individual filter parameter: ${key}=${paramValue}`);
+                url.searchParams.set(key, paramValue);
+            });
+        }
     }
     
     // Fix over-encoding issue
     let finalURL = url.toString().replace(/%25/g, "%");
     
+    console.log(`Final URL: ${finalURL}`);
     return finalURL;
 }
 
