@@ -35,19 +35,49 @@ Follow these steps to install this project as a Chrome extension:
 
 ## Changelog
 
-### Version 1.1 (Upcoming)
-**UI Enhancements & Code Refactoring**
-- **UI Enhancements**:
-  - Added icons to buttons and labels (📅 💾 🚀 📋)
-  - Improved spacing and breathing room between sections
-  - Better visual hierarchy with clearer section separation
-  - Enhanced input group styling with subtle backgrounds
-  - Hover effects on saved filter items
-  - Larger popup width for better readability
+### Version 2.1 (Latest)
+**Modern UI Redesign & Enhanced UX**
+- **Complete Visual Redesign**:
+  - Modern header with gradient background and professional CloudZero branding
+  - Updated typography using Inter font family for improved readability
+  - Professional color palette with proper contrast and accessibility
+  - Subtle shadows, elevation, and depth for visual hierarchy
+  - Smooth micro-interactions and hover effects throughout
+  - Increased popup width to 600px for better layout and readability
+- **Enhanced User Experience**:
+  - Animated custom fields that slide in/out smoothly when toggling
+  - Replaced intrusive alerts with elegant toast notifications for success/error states
+  - Added loading states with spinners for all async operations
+  - Improved form validation with inline error messages and focus management
+  - Auto-close popup after successful filter application
+  - Enhanced empty state for saved filters with helpful messaging
+  - Better visual feedback for all interactive elements
+- **Accessibility & Performance**:
+  - Improved semantic HTML structure for better screen reader support
+  - CSS custom properties for consistent design system
+  - Smooth animations with proper easing curves and reduced motion support
+  - High contrast mode support for accessibility
+  - Responsive design considerations
+- **Technical Improvements**:
+  - Modern CSS architecture with design tokens
+  - Better button hierarchy (primary vs secondary styling)
+  - Enhanced filter item interactions with smooth animations
+  - Improved error handling and user feedback systems
+
+### Version 2.0.0
+**Major Architecture Restructure**
 - **Code Architecture**:
   - Refactored codebase into modular structure under `/src` directory
   - Separated concerns into dedicated modules (popup, content, background, shared utilities)
-  - Improved maintainability and code organization
+  - Modern build system with Webpack for optimized builds
+  - ES6 modules with proper imports/exports
+  - Manifest V3 compliance with background service worker
+  - Comprehensive error handling and user feedback systems
+- **Development Improvements**:
+  - Asset management and copying via build process
+  - Prepared foundation for future TypeScript migration
+  - Enhanced development workflow and maintainability
+  - Better separation of date utilities, storage, and URL manipulation
 
 ### Version 1.0.1
 **Enhanced Date Input Flexibility**

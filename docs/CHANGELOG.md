@@ -1,5 +1,39 @@
 # Changelog
 
+## [2.1.0] - Modern UI Redesign
+
+### Added
+- Modern header with gradient background and CloudZero branding
+- Professional Inter font family for improved typography
+- Elegant toast notifications for success/error messages
+- Loading states with spinners for all async operations
+- Animated custom fields with smooth slide transitions
+- Enhanced empty state for saved filters with helpful messaging
+- Auto-close popup functionality after successful filter application
+
+### Changed
+- Complete visual redesign with modern color palette and shadows
+- Increased popup width from 380px to 600px for better layout
+- Replaced intrusive alerts with non-blocking toast notifications
+- Updated button hierarchy with primary/secondary styling
+- Improved form validation with inline error messages
+- Enhanced semantic HTML structure for better accessibility
+
+### Improved
+- Smooth micro-interactions and hover effects throughout the interface
+- Better visual feedback for all interactive elements
+- Enhanced filter item interactions with smooth animations
+- Improved focus management and keyboard navigation
+- Added support for reduced motion and high contrast preferences
+- Better spacing and visual hierarchy with design tokens
+
+### Technical
+- Modern CSS architecture with custom properties (design tokens)
+- Smooth animations with proper easing curves
+- Responsive design considerations and mobile-friendly viewport
+- Enhanced error handling and user feedback systems
+- Accessibility improvements with ARIA labels and semantic markup
+
 ## [2.0.0] - Restructure Release
 
 ### Added
