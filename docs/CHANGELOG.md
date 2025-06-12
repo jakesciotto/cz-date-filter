@@ -1,5 +1,30 @@
 # Changelog
 
+## [2.2.1] - UI Polish & Animation Improvements
+
+### Added
+- **Enhanced Visual Feedback**: Improved hover states with subtle shadows and transforms across all interactive elements
+- **Advanced Loading Indicators**: Shimmer animations and dual-border spinners for better loading feedback
+- **Smooth Animations**: Consistent slide transitions for custom fields matching advanced options behavior
+- **Form Interaction Polish**: Focus rings, hover effects, and improved dropdown arrow interactions
+
+### Changed
+- **Compact Layout**: Reduced padding and spacing throughout interface for better information density
+- **Smaller Toggle Button**: More proportional 36×20px toggle (down from 44×24px)
+- **Tighter Form Elements**: Optimized input padding and field spacing for streamlined appearance
+- **Filter Item Design**: Smaller padding and font sizes with enhanced hover animations
+
+### Improved
+- **Zero-Space Collapse**: Perfect space removal when sections are hidden with smooth expand/collapse
+- **Consistent Animations**: All expandable sections now use identical transition timing and behavior
+- **Visual Hierarchy**: Better balance between information density and usability
+- **Micro-interactions**: Enhanced hover and active states for improved user feedback
+
+### Technical
+- **Animation Consistency**: Unified transition patterns using CSS custom properties
+- **Performance Optimized**: Hardware-accelerated transforms for smooth animations
+- **Accessibility Maintained**: Proper focus states and reduced motion support preserved
+
 ## [2.2.0] - Advanced CloudZero Integration & UX Improvements
 
 ### Added

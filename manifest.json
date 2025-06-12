@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "CloudZero Date Filter",
-  "version": "1.0.1",
+  "version": "2.2.1",
   "description": "Save and apply custom date filters to CloudZero Explorer",
   "permissions": ["storage", "tabs"],
   "action": {
