@@ -42,35 +42,48 @@ export function buildCloudZeroUrl(baseUrl, startDate, endDate, advancedParams = 
     // Set optional advanced parameters
     console.log('Advanced params:', advancedParams);
     
+    console.log('Checking groupBy parameter:', advancedParams.groupBy);
+    console.log('groupBy exists and is not empty:', !!(advancedParams.groupBy && advancedParams.groupBy.trim()));
+    
     if (advancedParams.groupBy && advancedParams.groupBy.trim()) {
         // CloudZero uses 'costcontext:' prefix with display names for partitions
         const groupByValue = advancedParams.groupBy.trim();
+        console.log(`Processing groupBy value: "${groupByValue}"`);
         
-        // Map our internal values to CloudZero's partition names (simple format)
+        // Map our internal values to CloudZero's partition names
+        // Some use simple format, others use costcontext: prefix
         const cloudZeroPartitions = {
-            'billing_line_item': 'billing-line-items',
-            'service': 'services',
+            // Simple format (no costcontext prefix) - basic dimensions
             'account': 'accounts',
             'region': 'regions',
-            'availability_zone': 'availability-zones',
-            'instance_type': 'instance-types',
-            'resource_type': 'resource-types',
-            'category': 'categories',
-            'service_detail': 'service-details',
-            'payment_option': 'payment-options',
-            'elasticity': 'elasticity',
-            'networking_category': 'networking-categories',
-            'taggable_vs_untaggable': 'taggable-vs-untaggable',
-            'operation': 'operations',
-            'usage_type': 'usage-types',
-            'product_code': 'product-codes',
-            'resource_id': 'resource-ids'
+            'service': 'services',
+            
+            // CostContext format (requires costcontext: prefix) - detailed dimensions
+            'billing_line_item': 'costcontext:Billing Line Item',
+            'cloud_provider': 'costcontext:Cloud Provider',
+            'genai_model': 'costcontext:GenAI Model',
+            'genai_model_family': 'costcontext:GenAI Model Family',
+            'genai_platform': 'costcontext:GenAI Platform',
+            'genai_token_type': 'costcontext:GenAI Token Type',
+            'instance_type': 'costcontext:Instance Type',
+            'networking_category': 'costcontext:Networking Category',
+            'networking_sub_category': 'costcontext:Networking Sub-Category',
+            'payment_option': 'costcontext:Payment Option',
+            'resource_summary': 'costcontext:Resource Summary',
+            'resource_type': 'costcontext:Resource Type',
+            'service_category': 'costcontext:Service Category',
+            'service_detail': 'costcontext:Service Detail',
+            'taggable_vs_untaggable': 'costcontext:Taggable vs. Untaggable',
+            'usage_family': 'costcontext:Usage Family'
         };
         
         const partitionValue = cloudZeroPartitions[groupByValue] || groupByValue;
-        console.log(`Setting partitions parameter: ${partitionValue}`);
+        console.log(`Mapped "${groupByValue}" to partition value: "${partitionValue}"`);
+        console.log(`Setting partitions parameter in URL: ${partitionValue}`);
         url.searchParams.set("partitions", partitionValue);
+        console.log('Current URL after setting partitions:', url.toString());
     } else {
+        console.log('No groupBy parameter provided or it is empty');
         // Fix existing partitions encoding if no groupBy is specified
         let partitionsValue = url.searchParams.get("partitions");
         if (partitionsValue) {

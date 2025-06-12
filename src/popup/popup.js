@@ -99,13 +99,18 @@ document.addEventListener("DOMContentLoaded", function () {
      */
     function getAdvancedParameters() {
         if (!advancedToggle.checked) {
+            console.log('Advanced options not enabled, returning empty params');
             return {};
         }
+        
+        const groupByValue = groupBySelect.value;
+        console.log('Group By select value:', groupByValue);
+        console.log('Group By select element:', groupBySelect);
         
         const params = {
             costType: costTypeSelect.value !== CLOUDZERO_PARAMETERS.DEFAULTS.costType ? costTypeSelect.value : null,
             granularity: granularitySelect.value !== CLOUDZERO_PARAMETERS.DEFAULTS.granularity ? granularitySelect.value : null,
-            groupBy: groupBySelect.value || null
+            groupBy: groupByValue || null
         };
         
         // Only include filters if feature flag is enabled
@@ -113,6 +118,7 @@ document.addEventListener("DOMContentLoaded", function () {
             params.filters = filtersInput.value.trim() || null;
         }
         
+        console.log('Final advanced params:', params);
         return params;
     }
 
@@ -348,23 +354,25 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
                 if (advancedParams.groupBy) {
                     const groupByDisplayNames = {
-                        'billing_line_item': 'Billing Line Item',
-                        'service': 'Service',
                         'account': 'Account',
-                        'region': 'Region',
-                        'availability_zone': 'Availability Zone',
+                        'billing_line_item': 'Billing Line Item',
+                        'cloud_provider': 'Cloud Provider',
+                        'genai_model': 'GenAI Model',
+                        'genai_model_family': 'GenAI Model Family',
+                        'genai_platform': 'GenAI Platform',
+                        'genai_token_type': 'GenAI Token Type',
                         'instance_type': 'Instance Type',
-                        'resource_type': 'Resource Type',
-                        'category': 'Category',
-                        'service_detail': 'Service Detail',
-                        'payment_option': 'Payment Option',
-                        'elasticity': 'Elasticity',
                         'networking_category': 'Networking Category',
-                        'taggable_vs_untaggable': 'Taggable vs Untaggable',
-                        'operation': 'Operation',
-                        'usage_type': 'Usage Type',
-                        'product_code': 'Product Code',
-                        'resource_id': 'Resource ID'
+                        'networking_sub_category': 'Networking Sub-Category',
+                        'payment_option': 'Payment Option',
+                        'region': 'Region',
+                        'resource_summary': 'Resource Summary',
+                        'resource_type': 'Resource Type',
+                        'service': 'Service',
+                        'service_category': 'Service Category',
+                        'service_detail': 'Service Detail',
+                        'taggable_vs_untaggable': 'Taggable vs. Untaggable',
+                        'usage_family': 'Usage Family'
                     };
                     const groupByName = groupByDisplayNames[advancedParams.groupBy] || advancedParams.groupBy;
                     paramParts.push(`by ${groupByName}`);
