@@ -3,15 +3,21 @@
  */
 
 import { formatToCloudZeroISO } from './date-utils.js';
+import { CLOUDZERO_PARAMETERS } from './constants.js';
 
 /**
- * Builds CloudZero URL with date filters
+ * Builds CloudZero URL with date filters and optional advanced parameters
  * @param {string} baseUrl - Base CloudZero URL
  * @param {Date} startDate - Start date
  * @param {Date} endDate - End date
+ * @param {Object} advancedParams - Optional advanced parameters
+ * @param {string} advancedParams.costType - Cost type (real_cost, amortized_cost, etc.)
+ * @param {string} advancedParams.granularity - Data granularity (daily, weekly, monthly)
+ * @param {string} advancedParams.groupBy - Group by parameter
+ * @param {string} advancedParams.filters - Additional filters
  * @returns {string} Modified CloudZero URL
  */
-export function buildCloudZeroUrl(baseUrl, startDate, endDate) {
+export function buildCloudZeroUrl(baseUrl, startDate, endDate, advancedParams = {}) {
     const url = new URL(baseUrl);
     
     // Format dates to CloudZero's required format
@@ -22,20 +28,60 @@ export function buildCloudZeroUrl(baseUrl, startDate, endDate) {
     const encodedStartDate = formattedStartDate.replace(/:/g, "%3A");
     const encodedEndDate = formattedEndDate.replace(/:/g, "%3A");
     
-    // Fix partitions encoding (replace "+" with "%20")
-    let partitionsValue = url.searchParams.get("partitions");
-    if (partitionsValue) {
-        partitionsValue = partitionsValue.replace(/\+/g, "%20");
-        url.searchParams.set("partitions", partitionsValue);
-    }
+    // Set CloudZero parameters with defaults
+    const costType = advancedParams.costType || CLOUDZERO_PARAMETERS.DEFAULTS.costType;
+    const granularity = advancedParams.granularity || CLOUDZERO_PARAMETERS.DEFAULTS.granularity;
     
-    // Set required CloudZero parameters
-    url.searchParams.set("activeCostType", "real_cost");
-    url.searchParams.set("granularity", "daily");
+    url.searchParams.set("activeCostType", costType);
+    url.searchParams.set("granularity", granularity);
     url.searchParams.set("dateRange", "Custom");
     url.searchParams.set("startDate", encodedStartDate);
     url.searchParams.set("endDate", encodedEndDate);
     url.searchParams.set("showRightFlyout", "filters");
+    
+    // Set optional advanced parameters
+    if (advancedParams.groupBy && advancedParams.groupBy.trim()) {
+        // CloudZero uses 'costcontext:' prefix with display names for partitions
+        const groupByValue = advancedParams.groupBy.trim();
+        
+        // Map our internal values to CloudZero's display names
+        const cloudZeroDisplayNames = {
+            'billing_line_item': 'Billing Line Item',
+            'service': 'Service',
+            'account': 'Account',
+            'region': 'Region',
+            'availability_zone': 'Availability Zone',
+            'instance_type': 'Instance Type',
+            'resource_type': 'Resource Summary',
+            'category': 'Category',
+            'service_detail': 'Service Detail',
+            'payment_option': 'Payment Option',
+            'elasticity': 'Elasticity',
+            'networking_category': 'Networking Category',
+            'taggable_vs_untaggable': 'Taggable vs Untaggable',
+            'operation': 'Operation',
+            'usage_type': 'Usage Type',
+            'product_code': 'Product Code',
+            'resource_id': 'Resource ID'
+        };
+        
+        const displayName = cloudZeroDisplayNames[groupByValue] || groupByValue;
+        const partitionValue = `costcontext:${displayName}`;
+        console.log(`Setting partitions parameter: ${partitionValue}`);
+        url.searchParams.set("partitions", partitionValue);
+    } else {
+        // Fix existing partitions encoding if no groupBy is specified
+        let partitionsValue = url.searchParams.get("partitions");
+        if (partitionsValue) {
+            partitionsValue = partitionsValue.replace(/\+/g, "%20");
+            url.searchParams.set("partitions", partitionsValue);
+        }
+    }
+    
+    if (advancedParams.filters && advancedParams.filters.trim()) {
+        // Handle filters - this might need CloudZero-specific encoding
+        url.searchParams.set("filters", advancedParams.filters.trim());
+    }
     
     // Fix over-encoding issue
     let finalURL = url.toString().replace(/%25/g, "%");
@@ -58,12 +104,13 @@ export function isCloudZeroUrl(url) {
 }
 
 /**
- * Applies date filter to current CloudZero tab
+ * Applies date filter and advanced parameters to current CloudZero tab
  * @param {Date} startDate - Start date
  * @param {Date} endDate - End date
+ * @param {Object} advancedParams - Optional advanced parameters
  * @returns {Promise<void>}
  */
-export function applyDateFilterToTab(startDate, endDate) {
+export function applyDateFilterToTab(startDate, endDate, advancedParams = {}) {
     return new Promise((resolve, reject) => {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
             if (!tabs[0]) {
@@ -78,7 +125,7 @@ export function applyDateFilterToTab(startDate, endDate) {
                 return;
             }
             
-            const modifiedUrl = buildCloudZeroUrl(currentUrl, startDate, endDate);
+            const modifiedUrl = buildCloudZeroUrl(currentUrl, startDate, endDate, advancedParams);
             
             chrome.tabs.update(tabs[0].id, { url: modifiedUrl }, () => {
                 resolve();

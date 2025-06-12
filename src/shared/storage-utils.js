@@ -51,12 +51,23 @@ export function deleteFilter(index) {
  * @param {string} range - Date range type
  * @param {string} dates - Date range string
  * @param {string} customName - Custom name for the filter
+ * @param {Object} advancedParams - Advanced CloudZero parameters
+ * @param {string} advancedParams.costType - Cost type
+ * @param {string} advancedParams.granularity - Data granularity
+ * @param {string} advancedParams.groupBy - Group by parameter
+ * @param {string} advancedParams.filters - Additional filters
  * @returns {Object} Filter object
  */
-export function createFilter(range, dates, customName = null) {
+export function createFilter(range, dates, customName = null, advancedParams = {}) {
     return {
         range: dates ? "Custom" : range,
         dates: dates || "Auto-generated",
-        customName: customName || null
+        customName: customName || null,
+        advancedParams: {
+            costType: advancedParams.costType || null,
+            granularity: advancedParams.granularity || null,
+            groupBy: advancedParams.groupBy || null,
+            filters: advancedParams.filters || null
+        }
     };
 }

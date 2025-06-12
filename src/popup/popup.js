@@ -13,7 +13,7 @@ import {
     createFilter 
 } from '../shared/storage-utils.js';
 import { applyDateFilterToTab } from '../shared/url-utils.js';
-import { DATE_RANGES, UI_MESSAGES } from '../shared/constants.js';
+import { DATE_RANGES, UI_MESSAGES, CLOUDZERO_PARAMETERS } from '../shared/constants.js';
 
 document.addEventListener("DOMContentLoaded", function () {
     const dateFilter = document.getElementById("dateFilter");
@@ -22,6 +22,14 @@ document.addEventListener("DOMContentLoaded", function () {
     const applyButton = document.getElementById("applyFilter");
     const savedFiltersList = document.getElementById("savedFilters");
     const customNameInput = document.getElementById("customName");
+    
+    // Advanced options elements
+    const advancedToggle = document.getElementById("advancedToggle");
+    const advancedFields = document.getElementById("advancedFields");
+    const costTypeSelect = document.getElementById("costType");
+    const granularitySelect = document.getElementById("granularity");
+    const groupBySelect = document.getElementById("groupBy");
+    const filtersInput = document.getElementById("filters");
 
     /**
      * Updates the state of UI elements based on filter selection
@@ -49,6 +57,47 @@ document.addEventListener("DOMContentLoaded", function () {
             customDateInput.value = '';
             customNameInput.value = '';
         }
+    }
+
+    /**
+     * Toggles advanced options visibility
+     */
+    function toggleAdvancedOptions() {
+        const isAdvancedEnabled = advancedToggle.checked;
+        
+        if (isAdvancedEnabled) {
+            advancedFields.classList.add('show');
+        } else {
+            advancedFields.classList.remove('show');
+        }
+    }
+
+    /**
+     * Gets current advanced parameters from form
+     * @returns {Object} Advanced parameters object
+     */
+    function getAdvancedParameters() {
+        if (!advancedToggle.checked) {
+            return {};
+        }
+        
+        return {
+            costType: costTypeSelect.value !== CLOUDZERO_PARAMETERS.DEFAULTS.costType ? costTypeSelect.value : null,
+            granularity: granularitySelect.value !== CLOUDZERO_PARAMETERS.DEFAULTS.granularity ? granularitySelect.value : null,
+            groupBy: groupBySelect.value || null,
+            filters: filtersInput.value.trim() || null
+        };
+    }
+
+    /**
+     * Sets advanced parameters in form
+     * @param {Object} params - Advanced parameters object
+     */
+    function setAdvancedParameters(params = {}) {
+        costTypeSelect.value = params.costType || CLOUDZERO_PARAMETERS.DEFAULTS.costType;
+        granularitySelect.value = params.granularity || CLOUDZERO_PARAMETERS.DEFAULTS.granularity;
+        groupBySelect.value = params.groupBy || CLOUDZERO_PARAMETERS.DEFAULTS.groupBy;
+        filtersInput.value = params.filters || CLOUDZERO_PARAMETERS.DEFAULTS.filters;
     }
 
     /**
@@ -118,6 +167,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 dateFilter.value = selectedFilter.range;
                 customDateInput.value = selectedFilter.dates;
                 customNameInput.value = selectedFilter.customName || "";
+                
+                // Load advanced parameters if they exist
+                if (selectedFilter.advancedParams) {
+                    const hasAdvancedParams = Object.values(selectedFilter.advancedParams).some(val => val !== null);
+                    if (hasAdvancedParams) {
+                        advancedToggle.checked = true;
+                        toggleAdvancedOptions();
+                        setAdvancedParameters(selectedFilter.advancedParams);
+                    }
+                }
+                
                 updateSaveButtonState();
                 
                 // Add visual feedback
@@ -244,7 +304,8 @@ document.addEventListener("DOMContentLoaded", function () {
             // Validate custom date format
             parseFlexibleDateInput(customDate);
             
-            const filterObj = createFilter(selectedDate, customDate, customName);
+            const advancedParams = getAdvancedParameters();
+            const filterObj = createFilter(selectedDate, customDate, customName, advancedParams);
             await saveFilter(filterObj);
             
             loadSavedFilters();
@@ -288,7 +349,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 endDate = dateRange.endDate;
             }
 
-            await applyDateFilterToTab(startDate, endDate);
+            const advancedParams = getAdvancedParameters();
+            await applyDateFilterToTab(startDate, endDate, advancedParams);
             showSuccessMessage('Filter applied to CloudZero!');
             
             // Close popup after successful application
@@ -309,6 +371,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Event listeners
     dateFilter.addEventListener("change", updateSaveButtonState);
+    advancedToggle.addEventListener("change", toggleAdvancedOptions);
     saveButton.addEventListener("click", handleSaveFilter);
     applyButton.addEventListener("click", handleApplyFilter);
 });

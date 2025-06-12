@@ -22,6 +22,49 @@ export const CLOUDZERO_CONFIG = {
     DATA_INGESTION_LAG_DAYS: 2
 };
 
+export const CLOUDZERO_PARAMETERS = {
+    COST_TYPES: [
+        { value: 'billed_cost', label: 'Billed Cost' },
+        { value: 'discounted_cost', label: 'Discounted Cost' },
+        { value: 'discounted_amortized_cost', label: 'Discounted Amortized Cost' },
+        { value: 'amortized_cost', label: 'Amortized Cost' },
+        { value: 'invoiced_amortized_cost', label: 'Invoiced Amortized Cost' },
+        { value: 'real_cost', label: 'Real Cost' },
+        { value: 'on_demand_cost', label: 'On-Demand Cost' }
+    ],
+    GRANULARITIES: [
+        { value: 'daily', label: 'Daily' },
+        { value: 'weekly', label: 'Weekly' },
+        { value: 'monthly', label: 'Monthly' }
+    ],
+    GROUP_BY_OPTIONS: [
+        { value: '', label: 'None' },
+        { value: 'service', label: 'Service' },
+        { value: 'account', label: 'Account' },
+        { value: 'region', label: 'Region' },
+        { value: 'availability_zone', label: 'Availability Zone' },
+        { value: 'instance_type', label: 'Instance Type' },
+        { value: 'resource_type', label: 'Resource Type' },
+        { value: 'category', label: 'Category' },
+        { value: 'service_detail', label: 'Service Detail' },
+        { value: 'payment_option', label: 'Payment Option' },
+        { value: 'elasticity', label: 'Elasticity' },
+        { value: 'networking_category', label: 'Networking Category' },
+        { value: 'billing_line_item', label: 'Billing Line Item' },
+        { value: 'taggable_vs_untaggable', label: 'Taggable vs Untaggable' },
+        { value: 'operation', label: 'Operation' },
+        { value: 'usage_type', label: 'Usage Type' },
+        { value: 'product_code', label: 'Product Code' },
+        { value: 'resource_id', label: 'Resource ID' }
+    ],
+    DEFAULTS: {
+        costType: 'real_cost',
+        granularity: 'daily',
+        groupBy: '',
+        filters: ''
+    }
+};
+
 export const STORAGE_KEYS = {
     SAVED_FILTERS: 'savedFilters'
 };
