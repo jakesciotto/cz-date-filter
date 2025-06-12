@@ -131,6 +131,11 @@ body {
   gap: var(--space-1);
 }
 
+/* Date Selection Section */
+.date-selection {
+  margin-bottom: 0;
+}
+
 /* Form Styles */
 .form-field {
   display: flex;
@@ -205,7 +210,7 @@ body {
   border: var(--border-width) solid var(--gray-200);
   border-radius: var(--radius-lg);
   padding: var(--space-3);
-  margin-top: var(--space-2);
+  margin-top: 0;
   opacity: 0;
   max-height: 0;
   overflow: hidden;
@@ -222,6 +227,25 @@ body {
   color: var(--gray-500);
   cursor: not-allowed;
   border-color: var(--gray-200);
+}
+
+/* hide by default, no reserved space */
+#customFields {
+  height: 0;
+  overflow: hidden;
+  transition: height var(--transition-base), opacity var(--transition-base);
+  opacity: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+/* when visible, switch on your chosen layout */
+#customFields.show {
+  height: auto;
+  opacity: 1;
+  padding: var(--space-3);
+  margin: var(--space-2) 0;
 }
 
 /* Advanced Options Section */
@@ -247,10 +271,10 @@ body {
 
 .toggle-switch {
   position: relative;
-  width: 44px;
-  height: 24px;
+  width: 36px;
+  height: 20px;
   background-color: var(--gray-300);
-  border-radius: 12px;
+  border-radius: 10px;
   transition: var(--transition-fast);
   flex-shrink: 0;
 }
@@ -260,8 +284,8 @@ body {
   position: absolute;
   top: 2px;
   left: 2px;
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   background-color: white;
   border-radius: 50%;
   transition: var(--transition-fast);
@@ -273,7 +297,7 @@ body {
 }
 
 .toggle-checkbox:checked + .toggle-switch::before {
-  transform: translateX(20px);
+  transform: translateX(16px);
 }
 
 .toggle-text {
@@ -289,8 +313,8 @@ body {
   background-color: var(--gray-50);
   border: var(--border-width) solid var(--gray-200);
   border-radius: var(--radius-lg);
-  padding: var(--space-3);
-  margin-top: var(--space-3);
+  padding: 0;
+  margin: 0;
   opacity: 0;
   max-height: 0;
   overflow: hidden;
@@ -300,6 +324,8 @@ body {
 .advanced-fields.show {
   opacity: 1;
   max-height: 500px;
+  padding: var(--space-3);
+  margin-top: var(--space-3);
 }
 
 .field-hint {
