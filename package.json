@@ -1,6 +1,6 @@
 {
   "name": "cloudzero-date-filter",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Save and apply custom date filters to CloudZero Explorer",
   "scripts": {
     "build": "webpack --mode=production",

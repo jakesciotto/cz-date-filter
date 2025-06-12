@@ -1,5 +1,35 @@
 # Changelog
 
+## [2.2.0] - Advanced CloudZero Integration & UX Improvements
+
+### Added
+- **Advanced CloudZero Parameters**: Support for cost types, granularity, and group by options
+- **Complete Cost Type Support**: All 7 official CloudZero cost types (Billed, Discounted, Amortized, etc.)
+- **Group By Functionality**: 18 CloudZero dimensions including Service, Account, Region, and more
+- **Smart Filter Names**: Auto-generated descriptive names for preset date ranges
+- **Duplicate Filter Protection**: Prevents saving filters with identical names
+- **Persistent Advanced Toggle**: Remembers advanced options preference across sessions
+- **Additional Filters Framework**: Infrastructure for future filter enhancements (feature-flagged)
+
+### Changed
+- **Compact UI Design**: Reduced width to 300px and height to 400px for better screen efficiency
+- **Stacked Button Layout**: Vertical button arrangement for better mobile-like experience
+- **Enhanced Save Functionality**: Can now save any date range (not just custom ranges)
+- **Improved Error Handling**: Better validation with helpful error messages and focus management
+- **Condensed Spacing**: Tighter layout throughout the interface
+
+### Improved
+- **CloudZero URL Compatibility**: Generates URLs matching CloudZero's native format exactly
+- **Advanced Parameter Persistence**: Saves and restores complex filter configurations
+- **User Experience Flow**: Smoother interaction patterns with auto-focus and text selection
+- **Empty State Design**: More compact and visually appealing when no filters exist
+
+### Technical
+- **CloudZero API Integration**: Proper parameter mapping for partitions and filter syntax
+- **Feature Flag System**: Controlled rollout capability for experimental features
+- **Enhanced Storage Schema**: Support for advanced parameters in saved filters
+- **Comprehensive Validation**: Input validation for all CloudZero parameter types
+
 ## [2.1.0] - Modern UI Redesign
 
 ### Added
