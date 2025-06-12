@@ -15,6 +15,11 @@ import {
 import { applyDateFilterToTab } from '../shared/url-utils.js';
 import { DATE_RANGES, UI_MESSAGES, CLOUDZERO_PARAMETERS } from '../shared/constants.js';
 
+// Feature flags
+const FEATURE_FLAGS = {
+    ENABLE_FILTERS: false // Set to true to enable additional filters
+};
+
 document.addEventListener("DOMContentLoaded", function () {
     const dateFilter = document.getElementById("dateFilter");
     const customDateInput = document.getElementById("customDate");
@@ -45,22 +50,24 @@ document.addEventListener("DOMContentLoaded", function () {
             customFields.classList.remove('show');
         }
         
-        // Update button state
-        saveButton.disabled = !isCustomSelected;
+        // Save button is always enabled now
+        saveButton.disabled = false;
         
-        // Update input states
-        customDateInput.disabled = !isCustomSelected;
-        customNameInput.disabled = !isCustomSelected;
-        
-        // Clear custom inputs when switching away from custom
-        if (!isCustomSelected) {
+        // Update input states only for custom inputs when not custom
+        if (isCustomSelected) {
+            customDateInput.disabled = false;
+            customNameInput.disabled = false;
+        } else {
+            customDateInput.disabled = true;
+            customNameInput.disabled = true;
+            // Clear custom inputs when switching away from custom
             customDateInput.value = '';
             customNameInput.value = '';
         }
     }
 
     /**
-     * Toggles advanced options visibility
+     * Toggles advanced options visibility and saves preference
      */
     function toggleAdvancedOptions() {
         const isAdvancedEnabled = advancedToggle.checked;
@@ -70,6 +77,20 @@ document.addEventListener("DOMContentLoaded", function () {
         } else {
             advancedFields.classList.remove('show');
         }
+        
+        // Save the toggle state
+        chrome.storage.sync.set({ advancedOptionsEnabled: isAdvancedEnabled });
+    }
+    
+    /**
+     * Loads saved advanced options toggle state
+     */
+    function loadAdvancedOptionsState() {
+        chrome.storage.sync.get('advancedOptionsEnabled', (data) => {
+            const isEnabled = data.advancedOptionsEnabled || false;
+            advancedToggle.checked = isEnabled;
+            toggleAdvancedOptions();
+        });
     }
 
     /**
@@ -81,12 +102,18 @@ document.addEventListener("DOMContentLoaded", function () {
             return {};
         }
         
-        return {
+        const params = {
             costType: costTypeSelect.value !== CLOUDZERO_PARAMETERS.DEFAULTS.costType ? costTypeSelect.value : null,
             granularity: granularitySelect.value !== CLOUDZERO_PARAMETERS.DEFAULTS.granularity ? granularitySelect.value : null,
-            groupBy: groupBySelect.value || null,
-            filters: filtersInput.value.trim() || null
+            groupBy: groupBySelect.value || null
         };
+        
+        // Only include filters if feature flag is enabled
+        if (FEATURE_FLAGS.ENABLE_FILTERS) {
+            params.filters = filtersInput.value.trim() || null;
+        }
+        
+        return params;
     }
 
     /**
@@ -282,18 +309,73 @@ document.addEventListener("DOMContentLoaded", function () {
         const selectedDate = dateFilter.value;
         const customDate = customDateInput.value.trim();
         const customName = customNameInput.value.trim();
+        const isCustomSelected = dateFilter.value === DATE_RANGES.CUSTOM;
 
-        // Validate inputs
-        if (!customDate) {
-            showErrorMessage('Please enter a date range');
-            customDateInput.focus();
-            return;
-        }
-
-        if (!customName) {
-            showErrorMessage('Please enter a name for your filter');
-            customNameInput.focus();
-            return;
+        // Validate inputs based on selection type
+        if (isCustomSelected) {
+            if (!customDate) {
+                showErrorMessage('Please enter a date range');
+                customDateInput.focus();
+                return;
+            }
+            
+            if (!customName) {
+                showErrorMessage('Please enter a name for your filter');
+                customNameInput.focus();
+                return;
+            }
+            
+            // Validate custom date format
+            try {
+                parseFlexibleDateInput(customDate);
+            } catch (error) {
+                showErrorMessage(`Invalid date format: ${error.message}`);
+                return;
+            }
+        } else {
+            // For preset ranges, auto-generate name if not provided
+            if (!customName) {
+                const advancedParams = getAdvancedParameters();
+                let autoName = selectedDate;
+                
+                // Add advanced params to name if any are set
+                const paramParts = [];
+                if (advancedParams.costType && advancedParams.costType !== CLOUDZERO_PARAMETERS.DEFAULTS.costType) {
+                    paramParts.push(advancedParams.costType.replace('_', ' '));
+                }
+                if (advancedParams.granularity && advancedParams.granularity !== CLOUDZERO_PARAMETERS.DEFAULTS.granularity) {
+                    paramParts.push(advancedParams.granularity);
+                }
+                if (advancedParams.groupBy) {
+                    const groupByDisplayNames = {
+                        'billing_line_item': 'Billing Line Item',
+                        'service': 'Service',
+                        'account': 'Account',
+                        'region': 'Region',
+                        'availability_zone': 'Availability Zone',
+                        'instance_type': 'Instance Type',
+                        'resource_type': 'Resource Type',
+                        'category': 'Category',
+                        'service_detail': 'Service Detail',
+                        'payment_option': 'Payment Option',
+                        'elasticity': 'Elasticity',
+                        'networking_category': 'Networking Category',
+                        'taggable_vs_untaggable': 'Taggable vs Untaggable',
+                        'operation': 'Operation',
+                        'usage_type': 'Usage Type',
+                        'product_code': 'Product Code',
+                        'resource_id': 'Resource ID'
+                    };
+                    const groupByName = groupByDisplayNames[advancedParams.groupBy] || advancedParams.groupBy;
+                    paramParts.push(`by ${groupByName}`);
+                }
+                
+                if (paramParts.length > 0) {
+                    autoName += ` (${paramParts.join(', ')})`;
+                }
+                
+                customNameInput.value = autoName;
+            }
         }
 
         // Add loading state
@@ -301,20 +383,20 @@ document.addEventListener("DOMContentLoaded", function () {
         saveButton.disabled = true;
 
         try {
-            // Validate custom date format
-            parseFlexibleDateInput(customDate);
-            
             const advancedParams = getAdvancedParameters();
-            const filterObj = createFilter(selectedDate, customDate, customName, advancedParams);
+            const finalName = customNameInput.value.trim(); // Get the final name (auto-generated or user-entered)
+            const filterObj = createFilter(selectedDate, customDate, finalName, advancedParams);
             await saveFilter(filterObj);
             
             loadSavedFilters();
             customNameInput.value = "";
-            customDateInput.value = "";
+            if (isCustomSelected) {
+                customDateInput.value = "";
+            }
             
             showSuccessMessage('Filter saved successfully!');
         } catch (error) {
-            showErrorMessage(`Invalid date format: ${error.message}`);
+            showErrorMessage(`Error saving filter: ${error.message}`);
         } finally {
             saveButton.classList.remove('loading');
             saveButton.disabled = false;
@@ -365,9 +447,15 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    // Initialize feature flags
+    if (FEATURE_FLAGS.ENABLE_FILTERS) {
+        document.getElementById('filtersField').style.display = 'block';
+    }
+    
     // Initialize UI
     updateSaveButtonState();
     loadSavedFilters();
+    loadAdvancedOptionsState();
 
     // Event listeners
     dateFilter.addEventListener("change", updateSaveButtonState);
