@@ -46,31 +46,29 @@ export function buildCloudZeroUrl(baseUrl, startDate, endDate, advancedParams = 
         // CloudZero uses 'costcontext:' prefix with display names for partitions
         const groupByValue = advancedParams.groupBy.trim();
         
-        // Map our internal values to CloudZero's display names
-        const cloudZeroDisplayNames = {
-            'billing_line_item': 'Billing Line Item',
-            'service': 'Service',
-            'account': 'Account',
-            'region': 'Region',
-            'availability_zone': 'Availability Zone',
-            'instance_type': 'Instance Type',
-            'resource_type': 'Resource Summary',
-            'category': 'Category',
-            'service_detail': 'Service Detail',
-            'payment_option': 'Payment Option',
-            'elasticity': 'Elasticity',
-            'networking_category': 'Networking Category',
-            'taggable_vs_untaggable': 'Taggable vs Untaggable',
-            'operation': 'Operation',
-            'usage_type': 'Usage Type',
-            'product_code': 'Product Code',
-            'resource_id': 'Resource ID'
+        // Map our internal values to CloudZero's partition names (simple format)
+        const cloudZeroPartitions = {
+            'billing_line_item': 'billing-line-items',
+            'service': 'services',
+            'account': 'accounts',
+            'region': 'regions',
+            'availability_zone': 'availability-zones',
+            'instance_type': 'instance-types',
+            'resource_type': 'resource-types',
+            'category': 'categories',
+            'service_detail': 'service-details',
+            'payment_option': 'payment-options',
+            'elasticity': 'elasticity',
+            'networking_category': 'networking-categories',
+            'taggable_vs_untaggable': 'taggable-vs-untaggable',
+            'operation': 'operations',
+            'usage_type': 'usage-types',
+            'product_code': 'product-codes',
+            'resource_id': 'resource-ids'
         };
         
-        const displayName = cloudZeroDisplayNames[groupByValue] || groupByValue;
-        const partitionValue = `costcontext:${displayName}`;
+        const partitionValue = cloudZeroPartitions[groupByValue] || groupByValue;
         console.log(`Setting partitions parameter: ${partitionValue}`);
-        // CloudZero uses both 'partitions' (for UI) and 'partition_by' (for API)
         url.searchParams.set("partitions", partitionValue);
     } else {
         // Fix existing partitions encoding if no groupBy is specified
@@ -103,18 +101,11 @@ export function buildCloudZeroUrl(baseUrl, startDate, endDate, advancedParams = 
             }
         });
         
-        // CloudZero expects filters as JSON, but also supports individual URL parameters
-        // Try both approaches: JSON filters parameter AND individual parameters
+        // CloudZero uses individual URL parameters for filters (not JSON)
         if (Object.keys(filterGroups).length > 0) {
-            // Set as JSON filters parameter (for API compatibility)
-            const filtersJSON = JSON.stringify(filterGroups);
-            console.log(`Setting JSON filters parameter: ${filtersJSON}`);
-            url.searchParams.set("filters", filtersJSON);
-            
-            // Also set individual parameters (for UI compatibility)
             Object.entries(filterGroups).forEach(([key, values]) => {
                 const paramValue = values.join(',');
-                console.log(`Setting individual filter parameter: ${key}=${paramValue}`);
+                console.log(`Setting filter parameter: ${key}=${paramValue}`);
                 url.searchParams.set(key, paramValue);
             });
         }
