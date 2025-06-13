@@ -10,12 +10,12 @@
     "clean": "rm -rf dist/*"
   },
   "devDependencies": {
-    "webpack": "^5.88.0",
-    "webpack-cli": "^5.1.0",
+    "@types/chrome": "^0.0.243",
     "copy-webpack-plugin": "^11.0.0",
-    "eslint": "^8.45.0",
+    "eslint": "^8.57.1",
     "jest": "^29.6.0",
-    "@types/chrome": "^0.0.243"
+    "webpack": "^5.88.0",
+    "webpack-cli": "^5.1.0"
   },
   "browserslist": [
     "chrome >= 88"
