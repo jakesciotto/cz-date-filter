@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.2.2] - Settings Functionality & UI Fixes
+
+### Fixed
+- **Settings Navigation**: Resolved critical issue where settings wheel button was non-functional due to missing click event listener
+- **Settings Display**: Fixed popup window height collapse (25px) preventing settings content from being visible  
+- **Back Button Visibility**: Updated back button styling with dark theme for better visibility in settings view
+
+### Changed
+- **Popup Dimensions**: Standardized popup width to 400px with improved responsive height handling
+- **Event Handling**: Enhanced settings button with proper click, keyboard, and fallback event listeners
+- **Visual Consistency**: Improved settings page layout with proper forced reflow and window resize handling
+
+### Technical
+- **Window Management**: Added forced CSS styling to ensure popup expansion when switching to settings view
+- **Event Listener Architecture**: Comprehensive event attachment for settings navigation
+- **Accessibility**: Enhanced keyboard navigation support for settings button
+
 ## [2.2.1] - UI Polish & Animation Improvements
 
 ### Added

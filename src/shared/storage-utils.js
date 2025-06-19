@@ -83,3 +83,40 @@ export function createFilter(range, dates, customName = null, advancedParams = {
         }
     };
 }
+
+/**
+ * Gets user settings from Chrome storage
+ * @returns {Promise<Object>} User settings object
+ */
+export function getUserSettings() {
+    return new Promise((resolve) => {
+        chrome.storage.sync.get("userSettings", (data) => {
+            resolve(data.userSettings || {});
+        });
+    });
+}
+
+/**
+ * Saves user settings to Chrome storage
+ * @param {Object} settings - Settings object to save
+ * @returns {Promise<void>}
+ */
+export function saveUserSettings(settings) {
+    return new Promise((resolve) => {
+        chrome.storage.sync.set({ userSettings: settings }, () => {
+            resolve();
+        });
+    });
+}
+
+/**
+ * Clears all data from Chrome storage
+ * @returns {Promise<void>}
+ */
+export function clearAllData() {
+    return new Promise((resolve) => {
+        chrome.storage.sync.clear(() => {
+            resolve();
+        });
+    });
+}
