@@ -35,7 +35,7 @@ Follow these steps to install this project as a Chrome extension:
 
 ## Changelog
 
-### Version 2.1 (Latest)
+### Version 2.2.1 (Latest)
 **Modern UI Redesign & Enhanced UX**
 - **Complete Visual Redesign**:
   - Modern header with gradient background and professional CloudZero branding
