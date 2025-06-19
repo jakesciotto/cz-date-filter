@@ -33,3 +33,10 @@ To test changes:
 4. Test the popup and URL generation on CloudZero pages
 
 The extension targets `https://app.cloudzero.com/*` URLs and requires specific URL parameter formatting for proper CloudZero integration.
+
+## Project Structure Notes
+
+- The HTML and CSS are separated to maintain a clean, modular architecture
+  - `popup.html` focuses on the structure and content of the popup interface
+  - `styles.css` handles all styling concerns, allowing for easier maintenance and potential theme/style updates
+  - This separation follows web development best practices of keeping structure (HTML), presentation (CSS), and behavior (JS) distinct

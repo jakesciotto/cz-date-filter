@@ -54,6 +54,6 @@ async function getActiveTab() {
     return {
         id: activeTab.id,
         url: activeTab.url,
-        isCloudZeroPage: activeTab.url?.includes(CLOUDZERO_CONFIG.BASE_URL) || false
+        isCloudZeroPage: activeTab.url?.includes(CLOUDZERO_CONFIG.BASE_URL) || false,
     };
 }
