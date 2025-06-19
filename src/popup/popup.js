@@ -16,9 +16,6 @@
 // 1. IMPORTS AND CONSTANTS
 // =============================================================================
 
-// Add immediate console log to test if JavaScript is loading
-console.log("=== POPUP.JS LOADING ===");
-
 import { 
     parseFlexibleDateInput, 
     calculateDateRange 
@@ -34,8 +31,6 @@ import {
 } from '../shared/storage-utils.js';
 import { applyDateFilterToTab } from '../shared/url-utils.js';
 import { DATE_RANGES, UI_MESSAGES, CLOUDZERO_PARAMETERS } from '../shared/constants.js';
-
-console.log("=== IMPORTS LOADED ===");
 
 // Feature flags
 const FEATURE_FLAGS = {
@@ -249,34 +244,71 @@ const settingsViewHTML = `
 // =============================================================================
 
 function showSettingsView() {
-    console.log("=== showSettingsView called ===");
     const mainContent = document.getElementById('mainContent');
     const header = document.querySelector('.header h1');
     
     if (mainContent && header) {
+        // Remove any hide class that might be blocking display
+        mainContent.classList.remove('hide');
+        
         mainContent.innerHTML = settingsViewHTML;
         header.textContent = 'Settings';
         document.body.classList.add('settings-view');
         
-        // Re-attach settings event listeners
-        attachSettingsEventListeners();
-        loadSettings();
+        // Force visibility and layout
+        mainContent.style.display = 'flex';
+        mainContent.style.flexDirection = 'column';
+        mainContent.style.width = '100%';
+        mainContent.style.minHeight = '400px';
+        mainContent.style.padding = '12px';
+        mainContent.style.overflowY = 'auto';
+        mainContent.style.visibility = 'visible';
+        mainContent.style.opacity = '1';
         
-        console.log("Settings view loaded successfully");
-    } else {
-        console.error("Could not find required elements for settings view");
+        // Force reflow
+        mainContent.offsetHeight;
+        
+        // Force the body and html to show content with maximum priority
+        document.body.style.cssText = `
+            height: auto !important;
+            min-height: 500px !important;
+            width: 400px !important;
+            max-height: none !important;
+            overflow: visible !important;
+            display: block !important;
+        `;
+        
+        document.documentElement.style.cssText = `
+            height: auto !important;
+            min-height: 500px !important;
+            max-height: none !important;
+            overflow: visible !important;
+        `;
+        
+        // Force a hard reflow and repaint
+        document.body.offsetHeight;
+        window.dispatchEvent(new Event('resize'));
+        
+        // Re-attach settings event listeners
+        setTimeout(() => {
+            attachSettingsEventListeners();
+            loadSettings();
+        }, 10);
     }
 }
 
 function showMainView() {
-    console.log("=== showMainView called ===");
     const mainContent = document.getElementById('mainContent');
     const header = document.querySelector('.header h1');
     
     if (mainContent && header) {
+        // Remove any hide class that might be blocking display
+        mainContent.classList.remove('hide');
+        
         mainContent.innerHTML = mainViewHTML;
         header.textContent = 'CloudZero Date Filter';
         document.body.classList.remove('settings-view');
+        mainContent.style.cssText = ''; // Reset custom styles
         
         // Re-attach main view event listeners
         attachMainViewEventListeners();
@@ -287,10 +319,6 @@ function showMainView() {
             loadSavedFilters();
             loadAdvancedOptionsState();
         }, 0);
-        
-        console.log("Main view loaded successfully");
-    } else {
-        console.error("Could not find required elements for main view");
     }
 }
 
@@ -769,8 +797,6 @@ function showErrorMessage(message) {
 // =============================================================================
 
 function attachMainViewEventListeners() {
-    console.log("Attaching main view event listeners");
-    
     const dateFilter = document.getElementById("dateFilter");
     const customDateInput = document.getElementById("customDate");
     const customNameInput = document.getElementById("customName");
@@ -803,13 +829,9 @@ function attachMainViewEventListeners() {
     if (applyButton) {
         applyButton.addEventListener("click", handleApplyFilter);
     }
-    
-    console.log("Main view event listeners attached");
 }
 
 function attachSettingsEventListeners() {
-    console.log("Attaching settings event listeners");
-    
     // Back button
     const backButton = document.getElementById('backButton');
     if (backButton) {
@@ -864,8 +886,6 @@ function attachSettingsEventListeners() {
     if (clearBtn) clearBtn.addEventListener('click', clearAllDataConfirm);
     if (resetBtn) resetBtn.addEventListener('click', resetSettings);
     if (saveBtn) saveBtn.addEventListener('click', saveSettings);
-    
-    console.log("Settings event listeners attached");
 }
 
 // =============================================================================
@@ -873,21 +893,9 @@ function attachSettingsEventListeners() {
 // =============================================================================
 
 document.addEventListener("DOMContentLoaded", function () {
-    console.log("=== DOM LOADED - INITIALIZING POPUP ===");
-    
-    // Find settings button
-    const settingsButton = document.getElementById("settingsButton");
-    const settingsButtonAlt = document.querySelector('.settings-button');
-    const allButtons = document.querySelectorAll('button');
-    
-    console.log("Settings button (by ID):", settingsButton);
-    console.log("Settings button (by class):", settingsButtonAlt);
-    console.log("All buttons found:", allButtons.length);
-
     // Initialize main view content
     const mainContent = document.getElementById('mainContent');
     if (mainContent) {
-        console.log("Initializing main view content");
         mainContent.innerHTML = mainViewHTML;
         attachMainViewEventListeners();
         
@@ -897,26 +905,40 @@ document.addEventListener("DOMContentLoaded", function () {
             loadSavedFilters();
             loadAdvancedOptionsState();
         }, 0);
-        
-        console.log("Main view initialized");
-    } else {
-        console.error("MainContent element not found!");
     }
     
     // Attach settings button listener
-    const targetButton = settingsButton || settingsButtonAlt;
-    if (targetButton) {
-        console.log("Settings button found, attaching listener");
-        targetButton.addEventListener("click", (e) => {
+    const settingsButton = document.getElementById("settingsButton");
+    if (settingsButton) {
+        // Make button keyboard accessible
+        settingsButton.setAttribute('tabindex', '0');
+        
+        // Handle direct clicks
+        settingsButton.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            console.log("Settings button clicked!");
             showSettingsView();
         });
-        console.log("Settings button listener attached successfully");
-    } else {
-        console.error("Settings button not found!");
+        
+        // Handle keyboard navigation
+        settingsButton.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                showSettingsView();
+            }
+        });
+        
+        // Fallback: Handle clicks on the header area
+        const header = document.querySelector('.header');
+        if (header) {
+            header.addEventListener('click', (e) => {
+                const clickedButton = e.target.closest('#settingsButton');
+                if (clickedButton) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    showSettingsView();
+                }
+            });
+        }
     }
-    
-    console.log("=== POPUP INITIALIZATION COMPLETE ===");
 });

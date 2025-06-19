@@ -79,18 +79,19 @@ body {
   line-height: 1.5;
   color: var(--gray-800);
   background-color: white;
-  width: 300px;
-  min-width: 300px;
-  min-height: 400px;
+  width: 400px;
+  min-width: 400px;
+  min-height: 450px;
   overflow-x: hidden;
-  transition: width 0.3s ease;
   position: relative;
 }
 
-/* Responsive width for different views */
+/* Settings view adjustments */
 body.settings-view {
-  width: 600px;
-  min-height: 500px;
+  width: 400px !important;
+  min-width: 400px !important;
+  min-height: 500px !important;
+  height: auto !important;
 }
 
 /* Header */
@@ -150,6 +151,11 @@ body.settings-view {
   z-index: 1;
 }
 
+/* Ensure SVG inside button doesn't block clicks */
+.settings-button svg {
+  pointer-events: none;
+}
+
 .settings-button:hover {
   background: rgba(255, 255, 255, 0.2);
   transform: translateY(-1px);
@@ -162,9 +168,9 @@ body.settings-view {
 
 /* Back Button */
 .back-button {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
+  background: var(--gray-100);
+  border: 1px solid var(--gray-300);
+  color: var(--gray-700);
   padding: var(--space-2);
   border-radius: var(--border-radius);
   cursor: pointer;
@@ -173,15 +179,21 @@ body.settings-view {
   align-items: center;
   justify-content: center;
   margin-right: var(--space-3);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  gap: var(--space-2);
 }
 
 .back-button:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--gray-200);
+  border-color: var(--gray-400);
+  color: var(--gray-800);
   transform: translateX(-2px);
 }
 
 .back-button:active {
   transform: translateX(0);
+  background: var(--gray-300);
 }
 
 /* Main Content */
@@ -190,6 +202,17 @@ body.settings-view {
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
+  width: 100%;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Ensure settings content displays properly */
+body.settings-view .main-content {
+  display: flex !important;
+  width: 100% !important;
+  min-height: 400px !important;
 }
 
 /* Date Selection Section */

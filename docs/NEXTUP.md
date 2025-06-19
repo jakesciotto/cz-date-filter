@@ -15,6 +15,8 @@
 - **Success notifications** - Confirm when filters are applied
 - **Dark mode support** - Match CloudZero's theme
 - **Filter validation** - Warn about invalid date ranges
+- ~~**Settings page functionality**~~ - ✅ **COMPLETED** (v2.2.2)
+- ~~**Settings navigation improvements**~~ - ✅ **COMPLETED** (v2.2.2)
 
 ### Advanced Features
 - **Auto-sync with CloudZero saved views** - Bidirectional integration
