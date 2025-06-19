@@ -34,7 +34,8 @@ import { DATE_RANGES, UI_MESSAGES, CLOUDZERO_PARAMETERS } from '../shared/consta
 
 // Feature flags
 const FEATURE_FLAGS = {
-    ENABLE_FILTERS: false // Set to true to enable additional filters
+    ENABLE_FILTERS: false, // Set to true to enable additional filters
+    ENABLE_SETTINGS_PAGE: false // Set to true to enable settings page
 };
 
 // Default settings
@@ -928,38 +929,46 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 0);
     }
     
-    // Attach settings button listener
-    const settingsButton = document.getElementById("settingsButton");
-    if (settingsButton) {
-        // Make button keyboard accessible
-        settingsButton.setAttribute('tabindex', '0');
-        
-        // Handle direct clicks
-        settingsButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            showSettingsView();
-        });
-        
-        // Handle keyboard navigation
-        settingsButton.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
+    // Attach settings button listener (only if feature flag is enabled)
+    if (FEATURE_FLAGS.ENABLE_SETTINGS_PAGE) {
+        const settingsButton = document.getElementById("settingsButton");
+        if (settingsButton) {
+            // Make button keyboard accessible
+            settingsButton.setAttribute('tabindex', '0');
+            
+            // Handle direct clicks
+            settingsButton.addEventListener('click', (e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 showSettingsView();
-            }
-        });
-        
-        // Fallback: Handle clicks on the header area
-        const header = document.querySelector('.header');
-        if (header) {
-            header.addEventListener('click', (e) => {
-                const clickedButton = e.target.closest('#settingsButton');
-                if (clickedButton) {
+            });
+            
+            // Handle keyboard navigation
+            settingsButton.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    e.stopPropagation();
                     showSettingsView();
                 }
             });
+            
+            // Fallback: Handle clicks on the header area
+            const header = document.querySelector('.header');
+            if (header) {
+                header.addEventListener('click', (e) => {
+                    const clickedButton = e.target.closest('#settingsButton');
+                    if (clickedButton) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        showSettingsView();
+                    }
+                });
+            }
+        }
+    } else {
+        // Hide settings button if feature flag is disabled
+        const settingsButton = document.getElementById("settingsButton");
+        if (settingsButton) {
+            settingsButton.style.display = 'none';
         }
     }
 });
