@@ -1,6 +1,20 @@
 /**
  * CloudZero Date Filter Extension - Popup Interface
+ * 
+ * EXECUTION ORDER:
+ * 1. Module imports and constants
+ * 2. HTML templates for content swapping
+ * 3. Navigation functions (showSettingsView, showMainView)
+ * 4. Settings management functions 
+ * 5. Main view functions (filters, saving, applying)
+ * 6. UI helper functions (messages, state management)
+ * 7. Event listener attachment functions
+ * 8. DOMContentLoaded initialization
  */
+
+// =============================================================================
+// 1. IMPORTS AND CONSTANTS
+// =============================================================================
 
 // Add immediate console log to test if JavaScript is loading
 console.log("=== POPUP.JS LOADING ===");
@@ -38,7 +52,10 @@ const DEFAULT_SETTINGS = {
     enableShortcuts: true
 };
 
-// Content templates
+// =============================================================================
+// 2. HTML TEMPLATES
+// =============================================================================
+
 const mainViewHTML = `
     <section class="date-selection">
         <div class="form-field">
@@ -108,8 +125,12 @@ const mainViewHTML = `
                     <select id="groupBy" class="form-select">
                         <option value="">None</option>
                         <option value="account">Account</option>
-                        <option value="service">Service</option>
+                        <option value="billing_line_item">Billing Line Item</option>
+                        <option value="cloud_provider">Cloud Provider</option>
+                        <option value="instance_type">Instance Type</option>
                         <option value="region">Region</option>
+                        <option value="service">Service</option>
+                        <option value="service_category">Service Category</option>
                     </select>
                 </div>
             </div>
@@ -127,9 +148,10 @@ const mainViewHTML = `
         </button>
         <button id="applyFilter" class="btn btn-primary">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M5 12L10 17L20 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            Apply Filter
+            Apply to CloudZero
         </button>
     </section>
 
@@ -138,15 +160,11 @@ const mainViewHTML = `
         <div class="saved-filters-container">
             <ul id="savedFilters" class="saved-filters-list"></ul>
             <div id="emptyState" class="empty-state">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-                    <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-                    <path d="M16 13H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M16 17H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M10 9H9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 11H5M5 11L9 7M5 11L9 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
                 <p>No saved filters yet</p>
-                <span>Create custom filters to save them here</span>
+                <span>Create your first filter to get started</span>
             </div>
         </div>
     </section>
@@ -226,25 +244,19 @@ const settingsViewHTML = `
     </div>
 `;
 
-// Navigation functions
+// =============================================================================
+// 3. NAVIGATION FUNCTIONS
+// =============================================================================
+
 function showSettingsView() {
     console.log("=== showSettingsView called ===");
     const mainContent = document.getElementById('mainContent');
     const header = document.querySelector('.header h1');
     
-    console.log("mainContent element:", mainContent);
-    console.log("header element:", header);
-    console.log("settingsViewHTML length:", settingsViewHTML.length);
-    
     if (mainContent && header) {
-        console.log("Elements found, setting innerHTML...");
         mainContent.innerHTML = settingsViewHTML;
-        console.log("innerHTML set, new content:", mainContent.innerHTML.substring(0, 100) + "...");
-        
         header.textContent = 'Settings';
         document.body.classList.add('settings-view');
-        
-        console.log("Body classes:", document.body.className);
         
         // Re-attach settings event listeners
         attachSettingsEventListeners();
@@ -252,14 +264,12 @@ function showSettingsView() {
         
         console.log("Settings view loaded successfully");
     } else {
-        console.error("Could not find required elements:");
-        console.error("- mainContent:", mainContent);
-        console.error("- header:", header);
+        console.error("Could not find required elements for settings view");
     }
 }
 
 function showMainView() {
-    console.log("Showing main view");
+    console.log("=== showMainView called ===");
     const mainContent = document.getElementById('mainContent');
     const header = document.querySelector('.header h1');
     
@@ -271,20 +281,23 @@ function showMainView() {
         // Re-attach main view event listeners
         attachMainViewEventListeners();
         
-        // Re-initialize main view - use setTimeout to ensure DOM is ready
+        // Re-initialize main view state
         setTimeout(() => {
             updateSaveButtonState();
             loadSavedFilters();
             loadAdvancedOptionsState();
         }, 0);
         
-        console.log("Main view loaded");
+        console.log("Main view loaded successfully");
     } else {
-        console.error("Could not find mainContent element");
+        console.error("Could not find required elements for main view");
     }
 }
 
-// Settings management
+// =============================================================================
+// 4. SETTINGS MANAGEMENT
+// =============================================================================
+
 let currentSettings = { ...DEFAULT_SETTINGS };
 
 async function loadSettings() {
@@ -294,210 +307,163 @@ async function loadSettings() {
 }
 
 function populateSettingsUI() {
-    // Checkboxes
-    document.getElementById('autoApplyFilters').checked = currentSettings.autoApplyFilters;
-    document.getElementById('compactMode').checked = currentSettings.compactMode;
-    document.getElementById('showNotifications').checked = currentSettings.showNotifications;
-
-    // Selects
-    document.getElementById('theme').value = currentSettings.theme;
+    // Populate checkboxes
+    const autoApplyEl = document.getElementById('autoApplyFilters');
+    const compactModeEl = document.getElementById('compactMode');
+    const showNotificationsEl = document.getElementById('showNotifications');
+    
+    if (autoApplyEl) autoApplyEl.checked = currentSettings.autoApplyFilters;
+    if (compactModeEl) compactModeEl.checked = currentSettings.compactMode;
+    if (showNotificationsEl) showNotificationsEl.checked = currentSettings.showNotifications;
     
     // Populate default filter dropdown
     populateDefaultFilterDropdown();
-
-    // Apply compact mode class if enabled
-    if (currentSettings.compactMode) {
-        document.body.classList.add('compact');
-    }
 }
 
 async function populateDefaultFilterDropdown() {
-    const select = document.getElementById('defaultFilter');
-    const savedFilters = await getSavedFilters();
+    const defaultFilterEl = document.getElementById('defaultFilter');
+    if (!defaultFilterEl) return;
+    
+    const filters = await getSavedFilters();
     
     // Clear existing options except "None"
-    while (select.children.length > 1) {
-        select.removeChild(select.lastChild);
-    }
-
-    // Add saved filters
-    savedFilters.forEach((filter, index) => {
+    defaultFilterEl.innerHTML = '<option value="">None</option>';
+    
+    // Add saved filters as options
+    filters.forEach((filter, index) => {
         const option = document.createElement('option');
         option.value = index.toString();
-        option.textContent = filter.customName || `Filter ${index + 1}`;
-        select.appendChild(option);
+        option.textContent = filter.customName || `${filter.range} (${filter.dates})`;
+        defaultFilterEl.appendChild(option);
     });
-
-    // Set current value
-    select.value = currentSettings.defaultFilter;
+    
+    // Set current selection
+    if (currentSettings.defaultFilter) {
+        defaultFilterEl.value = currentSettings.defaultFilter;
+    }
 }
 
 async function saveSettings() {
     await saveUserSettings(currentSettings);
-    showNotification('Settings saved successfully!', 'success');
+    showSuccessMessage('Settings saved successfully!');
 }
 
 function resetSettings() {
-    const confirmed = confirm('Are you sure you want to reset all settings to defaults?');
-    
-    if (confirmed) {
-        currentSettings = { ...DEFAULT_SETTINGS };
-        populateSettingsUI();
-        showNotification('Settings reset to defaults!', 'success');
-    }
+    currentSettings = { ...DEFAULT_SETTINGS };
+    populateSettingsUI();
+    showSuccessMessage('Settings reset to defaults');
 }
 
+// Export/Import functions
 async function exportFilters() {
     const filters = await getSavedFilters();
-    const dataStr = JSON.stringify(filters, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const settings = await getUserSettings();
     
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `cloudzero-filters-${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const exportData = {
+        filters,
+        settings,
+        exportDate: new Date().toISOString(),
+        version: "2.2.1"
+    };
+    
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `cloudzero-filters-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
     URL.revokeObjectURL(url);
-
-    showNotification('Filters exported successfully!', 'success');
+    
+    showSuccessMessage('Filters exported successfully!');
 }
 
 async function importFilters(file) {
     if (!file) return;
-
+    
     try {
         const text = await file.text();
-        const importedFilters = JSON.parse(text);
+        const data = JSON.parse(text);
         
-        if (!Array.isArray(importedFilters)) {
-            throw new Error('Invalid file format');
-        }
-
-        // Validate filter structure
-        for (const filter of importedFilters) {
-            if (!filter.range && !filter.dates) {
-                throw new Error('Invalid filter structure');
+        if (data.filters) {
+            for (const filter of data.filters) {
+                try {
+                    await saveFilter(filter);
+                } catch (error) {
+                    console.warn('Skipped duplicate filter:', filter.customName);
+                }
             }
         }
-
-        // Merge with existing filters
-        const existingFilters = await getSavedFilters();
-        const mergedFilters = [...existingFilters, ...importedFilters];
-
-        chrome.storage.sync.set({ savedFilters: mergedFilters }, () => {
-            loadSavedFilters();
-            populateDefaultFilterDropdown();
-            showNotification(`Imported ${importedFilters.length} filters successfully!`, 'success');
-        });
-
+        
+        if (data.settings) {
+            await saveUserSettings(data.settings);
+            currentSettings = { ...DEFAULT_SETTINGS, ...data.settings };
+            populateSettingsUI();
+        }
+        
+        loadSavedFilters();
+        showSuccessMessage('Filters imported successfully!');
     } catch (error) {
-        console.error('Import error:', error);
-        showNotification('Failed to import filters. Please check the file format.', 'error');
+        showErrorMessage(`Error importing filters: ${error.message}`);
     }
 }
 
 function clearAllDataConfirm() {
-    const confirmed = confirm(
-        'Are you sure you want to clear all data? This will remove all saved filters and reset settings to defaults. This action cannot be undone.'
-    );
-
-    if (confirmed) {
+    if (confirm('Are you sure you want to clear all data? This action cannot be undone.')) {
         clearAllData().then(() => {
             currentSettings = { ...DEFAULT_SETTINGS };
             populateSettingsUI();
             loadSavedFilters();
-            showNotification('All data cleared successfully!', 'success');
+            showSuccessMessage('All data cleared successfully!');
         });
     }
 }
 
+// Notification function
 function showNotification(message, type = 'info') {
-    // Create notification element
+    if (!currentSettings.showNotifications) return;
+    
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
     notification.textContent = message;
-    
-    // Style the notification
-    Object.assign(notification.style, {
-        position: 'fixed',
-        top: '20px',
-        right: '20px',
-        padding: '12px 24px',
-        borderRadius: '6px',
-        color: 'white',
-        fontWeight: '500',
-        zIndex: '10000',
-        opacity: '0',
-        transform: 'translateY(-20px)',
-        transition: 'all 0.3s ease'
-    });
-
-    // Set background color based on type
-    const colors = {
-        success: '#10b981',
-        error: '#ef4444',
-        info: '#2563eb',
-        warning: '#f59e0b'
-    };
-    notification.style.backgroundColor = colors[type] || colors.info;
-
-    // Add to page
     document.body.appendChild(notification);
-
-    // Animate in
-    requestAnimationFrame(() => {
-        notification.style.opacity = '1';
-        notification.style.transform = 'translateY(0)';
-    });
-
-    // Remove after 3 seconds
-    setTimeout(() => {
-        notification.style.opacity = '0';
-        notification.style.transform = 'translateY(-20px)';
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
-            }
-        }, 300);
-    }, 3000);
+    
+    setTimeout(() => notification.remove(), 3000);
 }
 
-/**
- * Updates the state of UI elements based on filter selection
- */
+// =============================================================================
+// 5. MAIN VIEW FUNCTIONS
+// =============================================================================
+
 function updateSaveButtonState() {
     const dateFilter = document.getElementById("dateFilter");
-    const customFields = document.getElementById('customFields');
-    const saveButton = document.getElementById("saveFilter");
     const customDateInput = document.getElementById("customDate");
+    const customNameInput = document.getElementById("customName");
+    const customFields = document.getElementById("customFields");
+    const saveButton = document.getElementById("saveFilter");
     
-    if (!dateFilter || !customFields) return;
+    if (!dateFilter || !saveButton) return;
     
     const isCustomSelected = dateFilter.value === DATE_RANGES.CUSTOM;
     
-    // Toggle custom fields visibility with smooth animation
+    // Show/hide custom fields
+    if (customFields) {
+        if (isCustomSelected) {
+            customFields.classList.add('show');
+        } else {
+            customFields.classList.remove('show');
+        }
+    }
+    
+    // Update save button state
     if (isCustomSelected) {
-        customFields.classList.add('show');
+        const hasCustomDate = customDateInput?.value?.trim();
+        const hasCustomName = customNameInput?.value?.trim();
+        saveButton.disabled = !hasCustomDate || !hasCustomName;
     } else {
-        customFields.classList.remove('show');
-    }
-    
-    // Save button is always enabled now (if it exists)
-    if (saveButton) {
         saveButton.disabled = false;
-    }
-    
-    // Update input states only for custom inputs when not custom
-    if (isCustomSelected && customDateInput) {
-        customDateInput.disabled = false;
     }
 }
 
-/**
- * Toggles the advanced options section
- */
 function toggleAdvancedOptions() {
     const advancedToggle = document.getElementById("advancedToggle");
     const advancedFields = document.getElementById("advancedFields");
@@ -514,9 +480,6 @@ function toggleAdvancedOptions() {
     chrome.storage.sync.set({ advancedOptionsEnabled: advancedToggle.checked });
 }
 
-/**
- * Loads the state of advanced options from storage
- */
 function loadAdvancedOptionsState() {
     const advancedToggle = document.getElementById("advancedToggle");
     if (!advancedToggle) return;
@@ -529,9 +492,6 @@ function loadAdvancedOptionsState() {
     });
 }
 
-/**
- * Handles saving a filter
- */
 async function handleSaveFilter() {
     const dateFilter = document.getElementById("dateFilter");
     const customDateInput = document.getElementById("customDate");
@@ -588,9 +548,6 @@ async function handleSaveFilter() {
     }
 }
 
-/**
- * Handles applying a filter
- */
 async function handleApplyFilter() {
     const dateFilter = document.getElementById("dateFilter");
     const customDateInput = document.getElementById("customDate");
@@ -638,26 +595,19 @@ async function handleApplyFilter() {
     }
 }
 
-/**
- * Gets advanced parameters from the form
- */
 function getAdvancedParameters() {
     const costType = document.getElementById("costType")?.value || null;
     const granularity = document.getElementById("granularity")?.value || null;
     const groupBy = document.getElementById("groupBy")?.value || null;
-    const filters = document.getElementById("filters")?.value || null;
     
     return {
         costType: costType || null,
         granularity: granularity || null,
         groupBy: groupBy || null,
-        filters: filters || null
+        filters: null
     };
 }
 
-/**
- * Loads saved filters and displays them
- */
 async function loadSavedFilters() {
     const savedFiltersList = document.getElementById("savedFilters");
     const emptyState = document.getElementById('emptyState');
@@ -695,9 +645,6 @@ async function loadSavedFilters() {
     attachFilterListeners();
 }
 
-/**
- * Attaches event listeners to filter list items
- */
 function attachFilterListeners() {
     const deleteButtons = document.querySelectorAll('.delete-btn');
     const filterTexts = document.querySelectorAll('.filter-text');
@@ -733,9 +680,10 @@ function attachFilterListeners() {
     });
 }
 
-/**
- * Shows a success message
- */
+// =============================================================================
+// 6. UI HELPER FUNCTIONS
+// =============================================================================
+
 function showSuccessMessage(message) {
     const existingMessage = document.querySelector('.success-message');
     if (existingMessage) {
@@ -776,9 +724,6 @@ function showSuccessMessage(message) {
     }, 3000);
 }
 
-/**
- * Shows an error message
- */
 function showErrorMessage(message) {
     const existingMessage = document.querySelector('.error-message');
     if (existingMessage) {
@@ -819,90 +764,59 @@ function showErrorMessage(message) {
     }, 3000);
 }
 
-// Function to attach main view event listeners
+// =============================================================================
+// 7. EVENT LISTENER ATTACHMENT FUNCTIONS
+// =============================================================================
+
 function attachMainViewEventListeners() {
+    console.log("Attaching main view event listeners");
+    
     const dateFilter = document.getElementById("dateFilter");
+    const customDateInput = document.getElementById("customDate");
+    const customNameInput = document.getElementById("customName");
     const advancedToggle = document.getElementById("advancedToggle");
     const saveButton = document.getElementById("saveFilter");
     const applyButton = document.getElementById("applyFilter");
     
-    if (dateFilter) dateFilter.addEventListener("change", updateSaveButtonState);
-    if (advancedToggle) advancedToggle.addEventListener("change", toggleAdvancedOptions);
-    if (saveButton) saveButton.addEventListener("click", handleSaveFilter);
-    if (applyButton) applyButton.addEventListener("click", handleApplyFilter);
+    // Main form interactions
+    if (dateFilter) {
+        dateFilter.addEventListener("change", updateSaveButtonState);
+    }
+    
+    if (customDateInput) {
+        customDateInput.addEventListener("input", updateSaveButtonState);
+    }
+    
+    if (customNameInput) {
+        customNameInput.addEventListener("input", updateSaveButtonState);
+    }
+    
+    if (advancedToggle) {
+        advancedToggle.addEventListener("change", toggleAdvancedOptions);
+    }
+    
+    // Action buttons
+    if (saveButton) {
+        saveButton.addEventListener("click", handleSaveFilter);
+    }
+    
+    if (applyButton) {
+        applyButton.addEventListener("click", handleApplyFilter);
+    }
+    
+    console.log("Main view event listeners attached");
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-    console.log("DOM loaded, looking for settings button...");
-    const settingsButton = document.getElementById("settingsButton");
-    console.log("Settings button element:", settingsButton);
-    
-    // Let's also try a different selector in case the ID isn't working
-    const settingsButtonAlt = document.querySelector('.settings-button');
-    console.log("Settings button (by class):", settingsButtonAlt);
-    
-    // Log all buttons to see what's available
-    const allButtons = document.querySelectorAll('button');
-    console.log("All buttons found:", allButtons);
-
-
-    
-
-    // Load main view initially
-    const mainContent = document.getElementById('mainContent');
-    if (mainContent) {
-        mainContent.innerHTML = mainViewHTML;
-        attachMainViewEventListeners();
-        
-        // Initialize UI - use setTimeout to ensure DOM is ready
-        setTimeout(() => {
-            updateSaveButtonState();
-            loadSavedFilters();
-            loadAdvancedOptionsState();
-        }, 0);
-    }
-    
-    // Navigation event listeners
-    const targetButton = settingsButton || settingsButtonAlt;
-    if (targetButton) {
-        console.log("Settings button found, attaching listener to:", targetButton);
-        targetButton.addEventListener("click", (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log("Settings button clicked!");
-            showSettingsView();
-        });
-        
-        // Add a visual test - change button color when we hover
-        targetButton.style.transition = "background-color 0.2s";
-        targetButton.addEventListener("mouseenter", () => {
-            console.log("Mouse entered settings button");
-            targetButton.style.backgroundColor = "rgba(255,255,255,0.3)";
-        });
-        targetButton.addEventListener("mouseleave", () => {
-            targetButton.style.backgroundColor = "";
-        });
-        
-    } else {
-        console.error("Settings button not found!");
-        console.log("Available buttons:", allButtons);
-    }
-    
-});
-
-// Settings event listeners function
 function attachSettingsEventListeners() {
     console.log("Attaching settings event listeners");
     
     // Back button
     const backButton = document.getElementById('backButton');
     if (backButton) {
-        backButton.addEventListener('click', () => {
-            console.log("Back button clicked");
-            showMainView();
-        });
+        backButton.addEventListener('click', showMainView);
     }
     
+    // Settings form elements
     const autoApplyEl = document.getElementById('autoApplyFilters');
     const compactModeEl = document.getElementById('compactMode');
     const showNotificationsEl = document.getElementById('showNotifications');
@@ -933,7 +847,7 @@ function attachSettingsEventListeners() {
         });
     }
 
-    // Settings action buttons
+    // Action buttons
     const exportBtn = document.getElementById('exportFilters');
     const importBtn = document.getElementById('importFilters');
     const clearBtn = document.getElementById('clearAllData');
@@ -950,4 +864,59 @@ function attachSettingsEventListeners() {
     if (clearBtn) clearBtn.addEventListener('click', clearAllDataConfirm);
     if (resetBtn) resetBtn.addEventListener('click', resetSettings);
     if (saveBtn) saveBtn.addEventListener('click', saveSettings);
+    
+    console.log("Settings event listeners attached");
 }
+
+// =============================================================================
+// 8. INITIALIZATION
+// =============================================================================
+
+document.addEventListener("DOMContentLoaded", function () {
+    console.log("=== DOM LOADED - INITIALIZING POPUP ===");
+    
+    // Find settings button
+    const settingsButton = document.getElementById("settingsButton");
+    const settingsButtonAlt = document.querySelector('.settings-button');
+    const allButtons = document.querySelectorAll('button');
+    
+    console.log("Settings button (by ID):", settingsButton);
+    console.log("Settings button (by class):", settingsButtonAlt);
+    console.log("All buttons found:", allButtons.length);
+
+    // Initialize main view content
+    const mainContent = document.getElementById('mainContent');
+    if (mainContent) {
+        console.log("Initializing main view content");
+        mainContent.innerHTML = mainViewHTML;
+        attachMainViewEventListeners();
+        
+        // Initialize UI state
+        setTimeout(() => {
+            updateSaveButtonState();
+            loadSavedFilters();
+            loadAdvancedOptionsState();
+        }, 0);
+        
+        console.log("Main view initialized");
+    } else {
+        console.error("MainContent element not found!");
+    }
+    
+    // Attach settings button listener
+    const targetButton = settingsButton || settingsButtonAlt;
+    if (targetButton) {
+        console.log("Settings button found, attaching listener");
+        targetButton.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log("Settings button clicked!");
+            showSettingsView();
+        });
+        console.log("Settings button listener attached successfully");
+    } else {
+        console.error("Settings button not found!");
+    }
+    
+    console.log("=== POPUP INITIALIZATION COMPLETE ===");
+});
