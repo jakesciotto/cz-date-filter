@@ -79,8 +79,8 @@ body {
   line-height: 1.5;
   color: var(--gray-800);
   background-color: white;
-  width: 400px;
-  min-width: 400px;
+  width: 350px;
+  min-width: 350px;
   min-height: 450px;
   overflow-x: hidden;
   position: relative;
@@ -88,8 +88,8 @@ body {
 
 /* Settings view adjustments */
 body.settings-view {
-  width: 400px !important;
-  min-width: 400px !important;
+  width: 350px !important;
+  min-width: 350px !important;
   min-height: 500px !important;
   height: auto !important;
 }

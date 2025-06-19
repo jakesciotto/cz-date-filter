@@ -118,14 +118,7 @@ const mainViewHTML = `
                 <label for="groupBy" class="form-label">Group By</label>
                 <div class="select-wrapper">
                     <select id="groupBy" class="form-select">
-                        <option value="">None</option>
-                        <option value="account">Account</option>
-                        <option value="billing_line_item">Billing Line Item</option>
-                        <option value="cloud_provider">Cloud Provider</option>
-                        <option value="instance_type">Instance Type</option>
-                        <option value="region">Region</option>
-                        <option value="service">Service</option>
-                        <option value="service_category">Service Category</option>
+                        <!-- Options will be populated dynamically from constants -->
                     </select>
                 </div>
             </div>
@@ -272,7 +265,7 @@ function showSettingsView() {
         document.body.style.cssText = `
             height: auto !important;
             min-height: 500px !important;
-            width: 400px !important;
+            width: 350px !important;
             max-height: none !important;
             overflow: visible !important;
             display: block !important;
@@ -309,6 +302,10 @@ function showMainView() {
         header.textContent = 'CloudZero Date Filter';
         document.body.classList.remove('settings-view');
         mainContent.style.cssText = ''; // Reset custom styles
+        
+        // Reset document body and html styles to defaults
+        document.body.style.cssText = '';
+        document.documentElement.style.cssText = '';
         
         // Re-attach main view event listeners
         attachMainViewEventListeners();
@@ -712,6 +709,28 @@ function attachFilterListeners() {
 // 6. UI HELPER FUNCTIONS
 // =============================================================================
 
+function populateGroupByOptions() {
+    const groupBySelect = document.getElementById('groupBy');
+    if (!groupBySelect) return;
+    
+    // Clear existing options
+    groupBySelect.innerHTML = '';
+    
+    // Populate with all options from constants
+    CLOUDZERO_PARAMETERS.GROUP_BY_OPTIONS.forEach(option => {
+        const optionElement = document.createElement('option');
+        optionElement.value = option.value;
+        optionElement.textContent = option.label;
+        
+        // Set default selection
+        if (option.value === CLOUDZERO_PARAMETERS.DEFAULTS.groupBy) {
+            optionElement.selected = true;
+        }
+        
+        groupBySelect.appendChild(optionElement);
+    });
+}
+
 function showSuccessMessage(message) {
     const existingMessage = document.querySelector('.success-message');
     if (existingMessage) {
@@ -901,6 +920,7 @@ document.addEventListener("DOMContentLoaded", function () {
         
         // Initialize UI state
         setTimeout(() => {
+            populateGroupByOptions();
             updateSaveButtonState();
             loadSavedFilters();
             loadAdvancedOptionsState();
