@@ -711,7 +711,13 @@ function attachFilterListeners() {
 
 function populateGroupByOptions() {
     const groupBySelect = document.getElementById('groupBy');
-    if (!groupBySelect) return;
+    if (!groupBySelect) {
+        console.log('groupBy select element not found');
+        return;
+    }
+    
+    console.log('Found groupBy select, populating options');
+    console.log('GROUP_BY_OPTIONS:', CLOUDZERO_PARAMETERS.GROUP_BY_OPTIONS);
     
     // Clear existing options
     groupBySelect.innerHTML = '';
@@ -729,6 +735,8 @@ function populateGroupByOptions() {
         
         groupBySelect.appendChild(optionElement);
     });
+    
+    console.log('Populated', groupBySelect.children.length, 'group by options');
 }
 
 function showSuccessMessage(message) {
