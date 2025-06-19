@@ -312,6 +312,7 @@ function showMainView() {
         
         // Re-initialize main view state
         setTimeout(() => {
+            populateGroupByOptions();
             updateSaveButtonState();
             loadSavedFilters();
             loadAdvancedOptionsState();
@@ -711,13 +712,7 @@ function attachFilterListeners() {
 
 function populateGroupByOptions() {
     const groupBySelect = document.getElementById('groupBy');
-    if (!groupBySelect) {
-        console.log('groupBy select element not found');
-        return;
-    }
-    
-    console.log('Found groupBy select, populating options');
-    console.log('GROUP_BY_OPTIONS:', CLOUDZERO_PARAMETERS.GROUP_BY_OPTIONS);
+    if (!groupBySelect) return;
     
     // Clear existing options
     groupBySelect.innerHTML = '';
@@ -735,8 +730,6 @@ function populateGroupByOptions() {
         
         groupBySelect.appendChild(optionElement);
     });
-    
-    console.log('Populated', groupBySelect.children.length, 'group by options');
 }
 
 function showSuccessMessage(message) {
