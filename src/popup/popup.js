@@ -27,6 +27,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const applyButton = document.getElementById("applyFilter");
     const savedFiltersList = document.getElementById("savedFilters");
     const customNameInput = document.getElementById("customName");
+    const settingsButton = document.getElementById("settingsButton");
     
     // Advanced options elements
     const advancedToggle = document.getElementById("advancedToggle");
@@ -476,4 +477,7 @@ document.addEventListener("DOMContentLoaded", function () {
     advancedToggle.addEventListener("change", toggleAdvancedOptions);
     saveButton.addEventListener("click", handleSaveFilter);
     applyButton.addEventListener("click", handleApplyFilter);
+    settingsButton.addEventListener("click", () => {
+        chrome.tabs.create({ url: chrome.runtime.getURL('src/popup/settings.html') });
+    });
 });

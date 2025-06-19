@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CloudZero Date Filter - Settings</title>
+    <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+    <div class="settings-container">
+        <header class="settings-header">
+            <div class="header-content">
+                <button id="backButton" class="back-button" title="Back to main">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 12H5m0 0l7 7m-7-7l7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <h1>Settings</h1>
+            </div>
+        </header>
+
+        <main class="settings-content">
+            <!-- Default Filters Section -->
+            <section class="settings-section">
+                <h2>Default Filters</h2>
+                <div class="setting-group">
+                    <label class="setting-item">
+                        <input type="checkbox" id="autoApplyFilters">
+                        <span class="checkmark"></span>
+                        <span class="setting-label">Auto-apply saved filters on page load</span>
+                    </label>
+                    <div class="setting-description">
+                        Automatically apply your default date filter when CloudZero pages load
+                    </div>
+                </div>
+                
+                <div class="setting-group">
+                    <label for="defaultFilter" class="setting-label">Default Filter</label>
+                    <select id="defaultFilter" class="setting-select">
+                        <option value="">None</option>
+                        <!-- Populated dynamically with saved filters -->
+                    </select>
+                    <div class="setting-description">
+                        Choose which saved filter to apply by default
+                    </div>
+                </div>
+            </section>
+
+            <!-- UI Preferences Section -->
+            <section class="settings-section">
+                <h2>UI Preferences</h2>
+                <div class="setting-group">
+                    <label for="theme" class="setting-label">Theme</label>
+                    <select id="theme" class="setting-select">
+                        <option value="auto">Auto (Match System)</option>
+                        <option value="light">Light</option>
+                        <option value="dark">Dark</option>
+                    </select>
+                </div>
+
+                <div class="setting-group">
+                    <label class="setting-item">
+                        <input type="checkbox" id="compactMode">
+                        <span class="checkmark"></span>
+                        <span class="setting-label">Compact mode</span>
+                    </label>
+                    <div class="setting-description">
+                        Reduce spacing and padding for a more condensed interface
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <label class="setting-item">
+                        <input type="checkbox" id="showNotifications">
+                        <span class="checkmark"></span>
+                        <span class="setting-label">Show notifications</span>
+                    </label>
+                    <div class="setting-description">
+                        Display confirmation messages when filters are applied
+                    </div>
+                </div>
+            </section>
+
+            <!-- Keyboard Shortcuts Section -->
+            <section class="settings-section">
+                <h2>Keyboard Shortcuts</h2>
+                <div class="setting-group">
+                    <label class="setting-item">
+                        <input type="checkbox" id="enableShortcuts">
+                        <span class="checkmark"></span>
+                        <span class="setting-label">Enable keyboard shortcuts</span>
+                    </label>
+                    <div class="setting-description">
+                        Use keyboard shortcuts to quickly access common functions
+                    </div>
+                </div>
+
+                <div class="shortcuts-list" id="shortcutsList">
+                    <div class="shortcut-item">
+                        <span class="shortcut-action">Open extension</span>
+                        <span class="shortcut-keys">Alt + D</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <span class="shortcut-action">Apply last filter</span>
+                        <span class="shortcut-keys">Alt + L</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Data Management Section -->
+            <section class="settings-section">
+                <h2>Data Management</h2>
+                <div class="setting-group">
+                    <button id="exportFilters" class="action-button secondary">
+                        Export Saved Filters
+                    </button>
+                    <div class="setting-description">
+                        Download your saved filters as a JSON file
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <label for="importFilters" class="action-button secondary">
+                        Import Filters
+                        <input type="file" id="importFilters" accept=".json" style="display: none;">
+                    </label>
+                    <div class="setting-description">
+                        Import saved filters from a JSON file
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <button id="clearAllData" class="action-button danger">
+                        Clear All Data
+                    </button>
+                    <div class="setting-description">
+                        Remove all saved filters and reset settings to defaults
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="settings-footer">
+            <div class="footer-actions">
+                <button id="resetSettings" class="action-button secondary">Reset to Defaults</button>
+                <button id="saveSettings" class="action-button primary">Save Settings</button>
+            </div>
+            <div class="footer-info">
+                <span class="version">Version 2.2.1</span>
+            </div>
+        </footer>
+    </div>
+
+    <script src="settings.js"></script>
+</body>
+</html>
