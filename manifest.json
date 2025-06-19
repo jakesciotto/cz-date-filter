@@ -12,7 +12,6 @@
       "128": "assets/icons/cloudzero-icon-color-rgb-128.png"
     }
   },
-  "options_page": "src/popup/settings.html",
   "background": {
     "service_worker": "src/background/service-worker.js"
   },
