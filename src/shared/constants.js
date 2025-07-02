@@ -59,10 +59,16 @@ export const CLOUDZERO_PARAMETERS = {
         { value: 'taggable_vs_untaggable', label: 'Taggable vs. Untaggable' },
         { value: 'usage_family', label: 'Usage Family' }
     ],
+    SERIES_OPTIONS: [
+        { value: '5', label: '5' },
+        { value: '10', label: '10' },
+        { value: '25', label: '25' }
+    ],
     DEFAULTS: {
         costType: 'real_cost',
         granularity: 'daily',
         groupBy: '',
+        series: '10',
         filters: ''
     }
 };

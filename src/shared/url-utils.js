@@ -167,10 +167,23 @@ export function applyDateFilterToTab(startDate, endDate, advancedParams = {}) {
                 return;
             }
             
-            const modifiedUrl = buildCloudZeroUrl(currentUrl, startDate, endDate, advancedParams);
+            // Send message to content script to apply the filter
+            const startDateISO = formatToCloudZeroISO(startDate);
+            const endDateISO = formatToCloudZeroISO(endDate, true);
             
-            chrome.tabs.update(tabs[0].id, { url: modifiedUrl }, () => {
-                resolve();
+            chrome.tabs.sendMessage(tabs[0].id, {
+                action: 'applyDateFilter',
+                startDate: startDateISO,
+                endDate: endDateISO,
+                advancedParams: advancedParams
+            }, (response) => {
+                if (chrome.runtime.lastError) {
+                    reject(new Error(`Content script error: ${chrome.runtime.lastError.message}`));
+                } else if (response && response.success) {
+                    resolve();
+                } else {
+                    reject(new Error('Failed to apply filter'));
+                }
             });
         });
     });

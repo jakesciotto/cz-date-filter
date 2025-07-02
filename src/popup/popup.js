@@ -29,7 +29,7 @@ import {
     saveUserSettings,
     clearAllData
 } from '../shared/storage-utils.js';
-import { applyDateFilterToTab } from '../shared/url-utils.js';
+import { applyDateFilterToTab, buildCloudZeroUrl } from '../shared/url-utils.js';
 import { DATE_RANGES, UI_MESSAGES, CLOUDZERO_PARAMETERS } from '../shared/constants.js';
 
 // Feature flags
@@ -123,6 +123,15 @@ const mainViewHTML = `
                     </select>
                 </div>
             </div>
+
+            <div class="form-field">
+                <label for="series" class="form-label">Series</label>
+                <div class="select-wrapper">
+                    <select id="series" class="form-select">
+                        <!-- Options will be populated dynamically from constants -->
+                    </select>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -141,6 +150,9 @@ const mainViewHTML = `
                 <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
             Apply to CloudZero
+        </button>
+        <button id="testSeries" class="btn btn-secondary">
+            Test Series Control
         </button>
     </section>
 
@@ -314,6 +326,7 @@ function showMainView() {
         // Re-initialize main view state
         setTimeout(() => {
             populateGroupByOptions();
+            populateSeriesOptions();
             updateSaveButtonState();
             loadSavedFilters();
             loadAdvancedOptionsState();
@@ -494,13 +507,16 @@ function updateSaveButtonState() {
 function toggleAdvancedOptions() {
     const advancedToggle = document.getElementById("advancedToggle");
     const advancedFields = document.getElementById("advancedFields");
+    const testSeriesButton = document.getElementById("testSeries");
     
     if (!advancedToggle || !advancedFields) return;
     
     if (advancedToggle.checked) {
         advancedFields.classList.add('show');
+        if (testSeriesButton) testSeriesButton.style.display = 'inline-block';
     } else {
         advancedFields.classList.remove('show');
+        if (testSeriesButton) testSeriesButton.style.display = 'none';
     }
     
     // Save state to storage
@@ -509,12 +525,19 @@ function toggleAdvancedOptions() {
 
 function loadAdvancedOptionsState() {
     const advancedToggle = document.getElementById("advancedToggle");
+    const testSeriesButton = document.getElementById("testSeries");
+    
     if (!advancedToggle) return;
     
     chrome.storage.sync.get("advancedOptionsEnabled", (data) => {
         if (data.advancedOptionsEnabled) {
             advancedToggle.checked = true;
             toggleAdvancedOptions();
+        }
+        
+        // Always show test button for debugging
+        if (testSeriesButton) {
+            testSeriesButton.style.display = 'inline-block';
         }
     });
 }
@@ -607,7 +630,100 @@ async function handleApplyFilter() {
         }
 
         const advancedParams = getAdvancedParameters();
-        await applyDateFilterToTab(startDate, endDate, advancedParams);
+        
+        // Get current tab for URL navigation approach
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (!tab || !tab.url.includes('app.cloudzero.com')) {
+            throw new Error('Not on a CloudZero page');
+        }
+        
+        // Build the URL and navigate
+        const modifiedUrl = buildCloudZeroUrl(tab.url, startDate, endDate, advancedParams);
+        await chrome.tabs.update(tab.id, { url: modifiedUrl });
+        
+        // If series control is needed, inject it directly after navigation
+        if (advancedParams.series) {
+            setTimeout(async () => {
+                try {
+                    await chrome.scripting.executeScript({
+                        target: { tabId: tab.id },
+                        func: (seriesValue) => {
+                            console.log('Direct injection: Setting series to', seriesValue);
+                            
+                            function applySeries() {
+                                try {
+                                    const labels = Array.from(document.querySelectorAll('.cz-select-label'));
+                                    const seriesLabel = labels.find(l => l.textContent.trim() === 'Series');
+                                    
+                                    if (seriesLabel) {
+                                        const dropdown = seriesLabel.parentElement.querySelector('.cz-select-box');
+                                        if (dropdown) {
+                                            const current = dropdown.querySelector('.cz-select-box__content')?.textContent?.trim();
+                                            console.log('Current series:', current);
+                                            
+                                            if (current !== seriesValue) {
+                                                dropdown.click();
+                                                
+                                                setTimeout(() => {
+                                                    const options = Array.from(document.querySelectorAll('.cz-dropdown__item'));
+                                                    const numericOptions = options.filter(o => {
+                                                        const text = o.textContent.trim();
+                                                        return /^\d+$/.test(text) && parseInt(text) <= 100;
+                                                    });
+                                                    
+                                                    const target = numericOptions.find(o => o.textContent.trim() === seriesValue);
+                                                    if (target) {
+                                                        target.click();
+                                                        console.log('Series changed to', seriesValue);
+                                                    } else {
+                                                        console.log('Series option not found:', seriesValue);
+                                                    }
+                                                }, 300);
+                                            } else {
+                                                console.log('Series already set to', seriesValue);
+                                            }
+                                        }
+                                    }
+                                } catch (e) {
+                                    console.error('Series control error:', e);
+                                }
+                            }
+                            
+                            // Wait for CloudZero to finish loading and setting defaults
+                            let attempts = 0;
+                            function tryApply() {
+                                attempts++;
+                                
+                                // Check if series dropdown exists and has been set to CloudZero's default (usually 5)
+                                const labels = document.querySelectorAll('.cz-select-label');
+                                const seriesExists = Array.from(labels).some(l => l.textContent.trim() === 'Series');
+                                
+                                // Also check if data has loaded (look for chart or data indicators)
+                                const dataLoaded = document.querySelector('.ag-cost-graph') || 
+                                                 document.querySelector('[data-testid]') || 
+                                                 document.querySelector('.cz-dropdown__item');
+                                
+                                console.log(`Attempt ${attempts}: Series exists: ${seriesExists}, Data loaded: ${!!dataLoaded}`);
+                                
+                                if ((seriesExists && dataLoaded) || attempts >= 30) {
+                                    if (attempts >= 30) {
+                                        console.log('Max attempts reached, trying anyway...');
+                                    }
+                                    setTimeout(() => applySeries(), 500); // Extra delay for CloudZero to finish
+                                } else {
+                                    setTimeout(tryApply, 500); // Wait longer between attempts
+                                }
+                            }
+                            tryApply();
+                        },
+                        args: [advancedParams.series]
+                    });
+                } catch (error) {
+                    console.log('Could not inject series control:', error);
+                }
+            }, 4000); // Wait longer for CloudZero to fully load data
+        }
+        
         showSuccessMessage('Filter applied to CloudZero!');
         
         // Close popup after successful application
@@ -622,15 +738,116 @@ async function handleApplyFilter() {
     }
 }
 
+async function handleTestSeries() {
+    const seriesSelect = document.getElementById("series");
+    if (!seriesSelect) return;
+    
+    const seriesValue = seriesSelect.value;
+    
+    // Generate the code to copy to console
+    const testCode = `
+// CloudZero Series Control Test - Copy and paste this into CloudZero console
+(function(seriesValue) {
+    console.log('Testing series control with value:', seriesValue);
+    
+    try {
+        // Log all available select labels for debugging
+        const allLabels = Array.from(document.querySelectorAll('.cz-select-label'));
+        console.log('All select labels found:', allLabels.map(l => l.textContent.trim()));
+        
+        // Find the Series dropdown by looking for its label first
+        const seriesLabel = allLabels.find(label => label.textContent.trim() === 'Series');
+        if (seriesLabel) {
+            console.log('Found Series label:', seriesLabel);
+            const seriesContainer = seriesLabel.parentElement;
+            const seriesDropdown = seriesContainer.querySelector('.cz-select-box');
+            
+            if (seriesDropdown) {
+                const currentValue = seriesDropdown.querySelector('.cz-select-box__content')?.textContent?.trim();
+                console.log('Current series value:', currentValue);
+                
+                if (currentValue !== seriesValue) {
+                    console.log('Clicking series dropdown...');
+                    
+                    // Close any open dropdowns first
+                    document.querySelectorAll('.cz-dropdown--open').forEach(dropdown => {
+                        const toggleButton = dropdown.parentElement?.querySelector('.cz-select-box');
+                        if (toggleButton && toggleButton !== seriesDropdown) {
+                            console.log('Closing other open dropdown');
+                            toggleButton.click();
+                        }
+                    });
+                    
+                    // Wait a bit, then open the series dropdown
+                    setTimeout(() => {
+                        seriesDropdown.click();
+                        
+                        setTimeout(() => {
+                            // Look for dropdown options, but filter to only numeric values
+                            const allOptions = Array.from(document.querySelectorAll('.cz-dropdown__item'));
+                            const numericOptions = allOptions.filter(option => {
+                                const text = option.textContent.trim();
+                                return /^\\d+$/.test(text) && parseInt(text) <= 100; // Only numbers <= 100
+                            });
+                            
+                            console.log('All dropdown options found:', allOptions.length);
+                            console.log('Numeric options (likely series):', numericOptions.map(o => o.textContent.trim()));
+                            
+                            const targetOption = numericOptions.find(option => option.textContent.trim() === seriesValue);
+                            if (targetOption) {
+                                console.log('Clicking target series option:', targetOption);
+                                targetOption.click();
+                                console.log('Series set to ' + seriesValue + ' successfully!');
+                            } else {
+                                console.log('Series option ' + seriesValue + ' not found in numeric options');
+                                console.log('Trying in all options...');
+                                const anyTargetOption = allOptions.find(option => option.textContent.trim() === seriesValue);
+                                if (anyTargetOption) {
+                                    anyTargetOption.click();
+                                    console.log('Found and clicked ' + seriesValue + ' in all options');
+                                }
+                            }
+                        }, 400);
+                    }, 200);
+                } else {
+                    console.log('Series already set to ' + seriesValue);
+                }
+                return;
+            }
+        } else {
+            console.log('Series dropdown not found');
+            console.log('Available elements with .cz-select-box:', document.querySelectorAll('.cz-select-box').length);
+            console.log('Available elements with .ag-cost-graph__option-selector:', document.querySelectorAll('.ag-cost-graph__option-selector').length);
+        }
+        
+    } catch (error) {
+        console.error('Error in series control:', error);
+    }
+})('${seriesValue}');
+`;
+
+    // Copy to clipboard
+    try {
+        await navigator.clipboard.writeText(testCode);
+        showSuccessMessage(`Code copied! Go to CloudZero page, open console (F12), paste and press Enter to test Series=${seriesValue}`);
+    } catch (error) {
+        // Fallback: show in alert
+        alert(`Copy this code to CloudZero console:\n\n${testCode}`);
+        showSuccessMessage('Code ready! Paste into CloudZero console.');
+    }
+}
+
 function getAdvancedParameters() {
     const costType = document.getElementById("costType")?.value || null;
     const granularity = document.getElementById("granularity")?.value || null;
     const groupBy = document.getElementById("groupBy")?.value || null;
+    const series = document.getElementById("series")?.value || null;
     
     return {
         costType: costType || null,
         granularity: granularity || null,
         groupBy: groupBy || null,
+        series: series || null,
         filters: null
     };
 }
@@ -733,6 +950,28 @@ function populateGroupByOptions() {
     });
 }
 
+function populateSeriesOptions() {
+    const seriesSelect = document.getElementById('series');
+    if (!seriesSelect) return;
+    
+    // Clear existing options
+    seriesSelect.innerHTML = '';
+    
+    // Populate with all options from constants
+    CLOUDZERO_PARAMETERS.SERIES_OPTIONS.forEach(option => {
+        const optionElement = document.createElement('option');
+        optionElement.value = option.value;
+        optionElement.textContent = option.label;
+        
+        // Set default selection
+        if (option.value === CLOUDZERO_PARAMETERS.DEFAULTS.series) {
+            optionElement.selected = true;
+        }
+        
+        seriesSelect.appendChild(optionElement);
+    });
+}
+
 function showSuccessMessage(message) {
     const existingMessage = document.querySelector('.success-message');
     if (existingMessage) {
@@ -824,6 +1063,7 @@ function attachMainViewEventListeners() {
     const advancedToggle = document.getElementById("advancedToggle");
     const saveButton = document.getElementById("saveFilter");
     const applyButton = document.getElementById("applyFilter");
+    const testSeriesButton = document.getElementById("testSeries");
     
     // Main form interactions
     if (dateFilter) {
@@ -849,6 +1089,10 @@ function attachMainViewEventListeners() {
     
     if (applyButton) {
         applyButton.addEventListener("click", handleApplyFilter);
+    }
+    
+    if (testSeriesButton) {
+        testSeriesButton.addEventListener("click", handleTestSeries);
     }
 }
 
@@ -923,6 +1167,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // Initialize UI state
         setTimeout(() => {
             populateGroupByOptions();
+            populateSeriesOptions();
             updateSaveButtonState();
             loadSavedFilters();
             loadAdvancedOptionsState();
