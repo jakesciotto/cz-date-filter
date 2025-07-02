@@ -641,12 +641,14 @@ async function handleApplyFilter() {
         const modifiedUrl = buildCloudZeroUrl(tab.url, startDate, endDate, advancedParams);
         await chrome.tabs.update(tab.id, { url: modifiedUrl });
         
-        // If series control is needed, inject it directly after navigation
+        // If series control is needed, inject it directly into the page context
         if (advancedParams.series) {
             setTimeout(async () => {
                 try {
+                    // Inject script into page context (not isolated)
                     await chrome.scripting.executeScript({
                         target: { tabId: tab.id },
+                        world: 'MAIN', // Run in page's main world, not isolated
                         func: (seriesValue) => {
                             console.log('Direct injection: Setting series to', seriesValue);
                             
@@ -689,32 +691,59 @@ async function handleApplyFilter() {
                                 }
                             }
                             
-                            // Wait for CloudZero to finish loading and setting defaults
+                            // Wait for CloudZero to finish loading and setting defaults, then override
                             let attempts = 0;
+                            let lastSeriesValue = null;
+                            
                             function tryApply() {
                                 attempts++;
                                 
-                                // Check if series dropdown exists and has been set to CloudZero's default (usually 5)
+                                // Check if series dropdown exists
                                 const labels = document.querySelectorAll('.cz-select-label');
-                                const seriesExists = Array.from(labels).some(l => l.textContent.trim() === 'Series');
+                                const seriesLabel = Array.from(labels).find(l => l.textContent.trim() === 'Series');
                                 
-                                // Also check if data has loaded (look for chart or data indicators)
-                                const dataLoaded = document.querySelector('.ag-cost-graph') || 
-                                                 document.querySelector('[data-testid]') || 
-                                                 document.querySelector('.cz-dropdown__item');
-                                
-                                console.log(`Attempt ${attempts}: Series exists: ${seriesExists}, Data loaded: ${!!dataLoaded}`);
-                                
-                                if ((seriesExists && dataLoaded) || attempts >= 30) {
-                                    if (attempts >= 30) {
-                                        console.log('Max attempts reached, trying anyway...');
+                                if (seriesLabel) {
+                                    const dropdown = seriesLabel.parentElement.querySelector('.cz-select-box');
+                                    const currentValue = dropdown?.querySelector('.cz-select-box__content')?.textContent?.trim();
+                                    
+                                    console.log(`Attempt ${attempts}: Current series value: ${currentValue}, Target: ${seriesValue}`);
+                                    
+                                    // Detect if CloudZero changed the value (indicating data finished loading)
+                                    if (lastSeriesValue !== null && lastSeriesValue !== currentValue) {
+                                        console.log('CloudZero changed series value, applying our override now');
+                                        setTimeout(() => applySeries(), 1000);
+                                        return;
                                     }
-                                    setTimeout(() => applySeries(), 500); // Extra delay for CloudZero to finish
+                                    
+                                    lastSeriesValue = currentValue;
+                                    
+                                    // If we've been trying for a while and have a stable value, override it
+                                    if (attempts >= 15 && currentValue && currentValue !== seriesValue) {
+                                        console.log('Stable value detected, applying override');
+                                        applySeries();
+                                        return;
+                                    }
+                                    
+                                    // Max attempts fallback
+                                    if (attempts >= 40) {
+                                        console.log('Max attempts reached, trying final override');
+                                        applySeries();
+                                        return;
+                                    }
+                                    
+                                    setTimeout(tryApply, 750); // Check every 750ms
                                 } else {
-                                    setTimeout(tryApply, 500); // Wait longer between attempts
+                                    console.log(`Attempt ${attempts}: Series dropdown not found yet`);
+                                    if (attempts >= 40) {
+                                        console.log('Max attempts reached, series dropdown never found');
+                                        return;
+                                    }
+                                    setTimeout(tryApply, 750);
                                 }
                             }
-                            tryApply();
+                            
+                            // Start checking after initial page load
+                            setTimeout(tryApply, 2000);
                         },
                         args: [advancedParams.series]
                     });
