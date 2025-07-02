@@ -1,5 +1,28 @@
 # Changelog
 
+## [2.3.0] - Series Dropdown Control Feature
+
+### Added
+- **Series Control**: New dropdown in advanced options to control CloudZero's "Series" parameter (5, 10, or 25 top partitions)
+- **Direct Page Injection**: Script injection running in page's main JavaScript context for full CloudZero integration
+- **Intelligent Timing Logic**: Detects when CloudZero finishes loading and overrides default series values
+- **Test Button**: Debug functionality to test series control with console code generation
+
+### Changed
+- **Manifest V3 Optimization**: Removed unused service worker to eliminate extension loading issues
+- **Enhanced Permissions**: Added `scripting` permission and host permissions for CloudZero pages
+- **Script Execution Context**: Changed from isolated extension context to main page context for better compatibility
+
+### Improved
+- **CloudZero Integration**: Seamless interaction with CloudZero's Downshift React dropdown components
+- **Retry Mechanism**: Sophisticated retry logic with value change detection and stable value override
+- **Console Debugging**: Manual testing capabilities with generated console code for troubleshooting
+
+### Technical
+- **World Isolation**: Uses `world: 'MAIN'` for chrome.scripting.executeScript to run in page context
+- **React Component Access**: Full access to CloudZero's internal React state and component methods
+- **Timing Detection**: Advanced logic to detect CloudZero's data loading completion and default value setting
+
 ## [2.2.2] - Settings Functionality & UI Fixes
 
 ### Fixed
