@@ -39,16 +39,9 @@ export function buildCloudZeroUrl(baseUrl, startDate, endDate, advancedParams = 
     url.searchParams.set("endDate", encodedEndDate);
     url.searchParams.set("showRightFlyout", "filters");
     
-    // Set optional advanced parameters
-    console.log('Advanced params:', advancedParams);
-    
-    console.log('Checking groupBy parameter:', advancedParams.groupBy);
-    console.log('groupBy exists and is not empty:', !!(advancedParams.groupBy && advancedParams.groupBy.trim()));
-    
     if (advancedParams.groupBy && advancedParams.groupBy.trim()) {
         // CloudZero uses 'costcontext:' prefix with display names for partitions
         const groupByValue = advancedParams.groupBy.trim();
-        console.log(`Processing groupBy value: "${groupByValue}"`);
         
         // Map our internal values to CloudZero's partition names
         // Some use simple format, others use costcontext: prefix
@@ -78,12 +71,8 @@ export function buildCloudZeroUrl(baseUrl, startDate, endDate, advancedParams = 
         };
         
         const partitionValue = cloudZeroPartitions[groupByValue] || groupByValue;
-        console.log(`Mapped "${groupByValue}" to partition value: "${partitionValue}"`);
-        console.log(`Setting partitions parameter in URL: ${partitionValue}`);
         url.searchParams.set("partitions", partitionValue);
-        console.log('Current URL after setting partitions:', url.toString());
     } else {
-        console.log('No groupBy parameter provided or it is empty');
         // Fix existing partitions encoding if no groupBy is specified
         let partitionsValue = url.searchParams.get("partitions");
         if (partitionsValue) {
@@ -95,7 +84,6 @@ export function buildCloudZeroUrl(baseUrl, startDate, endDate, advancedParams = 
     if (advancedParams.filters && advancedParams.filters.trim()) {
         // Parse CloudZero filters - format: "services:AmazonCloudWatch,region:us-east-1,us-east-2"
         const filtersString = advancedParams.filters.trim();
-        console.log(`Parsing filters: ${filtersString}`);
         
         // Split by commas and process each filter
         const filterPairs = filtersString.split(',').map(f => f.trim());
@@ -118,7 +106,6 @@ export function buildCloudZeroUrl(baseUrl, startDate, endDate, advancedParams = 
         if (Object.keys(filterGroups).length > 0) {
             Object.entries(filterGroups).forEach(([key, values]) => {
                 const paramValue = values.join(',');
-                console.log(`Setting filter parameter: ${key}=${paramValue}`);
                 url.searchParams.set(key, paramValue);
             });
         }
@@ -126,8 +113,7 @@ export function buildCloudZeroUrl(baseUrl, startDate, endDate, advancedParams = 
     
     // Fix over-encoding issue
     let finalURL = url.toString().replace(/%25/g, "%");
-    
-    console.log(`Final URL: ${finalURL}`);
+
     return finalURL;
 }
 
